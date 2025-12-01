@@ -236,23 +236,21 @@
                     if (href !== '#' && href.length > 1) {
                         e.preventDefault();
                         
-                        // 尝试多种方式查找目标元素
-                        let target = document.querySelector(href);
+                        // 获取目标 ID（移除 #）
+                        const targetId = href.substring(1);
                         
-                        // 如果直接查询失败，尝试解码 URL
+                        // 优先使用 getElementById（最可靠）
+                        let target = document.getElementById(targetId);
+                        
+                        // 如果 getElementById 失败，尝试 querySelector（处理特殊字符）
                         if (!target) {
                             try {
-                                const decodedHref = decodeURIComponent(href);
-                                target = document.querySelector(decodedHref);
-                            } catch (e) {
-                                console.warn('Failed to decode href:', href);
+                                // 转义特殊字符用于 CSS 选择器
+                                const escapedId = targetId.replace(/([!"#$%&'()*+,./:;<=>?@[\\]^`{|}~])/g, '\\$1');
+                                target = document.querySelector('#' + escapedId);
+                            } catch (err) {
+                                console.warn('Failed to query selector for:', href, err);
                             }
-                        }
-                        
-                        // 如果还是找不到，尝试通过 id 属性查找
-                        if (!target) {
-                            const id = href.substring(1); // 移除 #
-                            target = document.getElementById(id);
                         }
                         
                         if (target) {
@@ -269,7 +267,9 @@
                                 history.pushState(null, null, href);
                             }
                         } else {
-                            console.warn('Target not found for href:', href);
+                            console.warn('Target not found for href:', href, 'targetId:', targetId);
+                            // 回退：尝试直接跳转（浏览器默认行为）
+                            window.location.hash = href;
                         }
                     }
                 });
