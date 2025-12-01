@@ -13,16 +13,19 @@ def slugify_chinese(text, separator='-'):
     """处理中文标题的锚点生成"""
     # 先使用默认的 slugify
     slug = slugify(text, separator)
-    # 如果结果是空的（中文情况），使用 Unicode 编码
-    if not slug:
-        # 将中文转换为拼音或使用 Unicode 编码
-        import unicodedata
-        slug = ''.join(
-            unicodedata.name(char, char).lower().replace(' ', '-')
-            if ord(char) > 127 else char
-            for char in text
-        )
-        slug = re.sub(r'[^\w\-]', '', slug)
+    # 如果结果是空的（中文情况），使用哈希值
+    if not slug or len(slug) < 3:
+        # 使用标题的哈希值作为锚点
+        import hashlib
+        # 移除 emoji 和特殊字符
+        clean_text = re.sub(r'[^\w\s\u4e00-\u9fff]', '', text)
+        # 生成简短的哈希值
+        hash_obj = hashlib.md5(clean_text.encode('utf-8'))
+        hash_hex = hash_obj.hexdigest()[:8]
+        slug = f"section-{hash_hex}"
+    # 如果 slug 太长，截断
+    if len(slug) > 50:
+        slug = slug[:50]
     return slug
 
 
