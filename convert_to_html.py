@@ -23,9 +23,15 @@ def slugify_chinese(text, separator='-'):
         hash_obj = hashlib.md5(clean_text.encode('utf-8'))
         hash_hex = hash_obj.hexdigest()[:8]
         slug = f"section-{hash_hex}"
+    
+    # CSS 选择器不能以数字开头，如果以数字开头，添加前缀
+    if slug and slug[0].isdigit():
+        slug = f"section-{slug}"
+    
     # 如果 slug 太长，截断
     if len(slug) > 50:
         slug = slug[:50]
+    
     return slug
 
 

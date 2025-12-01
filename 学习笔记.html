@@ -287,11 +287,11 @@
 <h2 id="section-6d960e42">📚 目录</h2>
 <ol>
 <li><a href="#section-308af18e">项目概述</a></li>
-<li><a href="#1-fastapi">FastAPI 框架</a></li>
-<li><a href="#2-sqlalchemy-orm">SQLAlchemy ORM 与数据库设计</a></li>
-<li><a href="#3-redis">Redis 缓存与连接池管理</a></li>
-<li><a href="#4-celery">Celery 异步任务处理</a></li>
-<li><a href="#5-jwt">JWT 认证与安全机制</a></li>
+<li><a href="#section-1-fastapi">FastAPI 框架</a></li>
+<li><a href="#section-2-sqlalchemy-orm">SQLAlchemy ORM 与数据库设计</a></li>
+<li><a href="#section-3-redis">Redis 缓存与连接池管理</a></li>
+<li><a href="#section-4-celery">Celery 异步任务处理</a></li>
+<li><a href="#section-5-jwt">JWT 认证与安全机制</a></li>
 <li><a href="#section-d15c6431">项目架构设计模式</a></li>
 <li><a href="#section-998fc30d">云服务集成</a></li>
 <li><a href="#section-b33f2dd4">测试与部署</a></li>
@@ -331,8 +331,8 @@
 </code></pre></div>
 
 <hr />
-<h2 id="1-fastapi">1. FastAPI 框架</h2>
-<h3 id="11-fastapi">1.1 FastAPI 核心概念</h3>
+<h2 id="section-1-fastapi">1. FastAPI 框架</h2>
+<h3 id="section-11-fastapi">1.1 FastAPI 核心概念</h3>
 <p>FastAPI 是一个现代、快速（高性能）的 Web 框架，用于构建基于标准 Python 类型提示的 API。</p>
 <h4 id="section-dc48225f">关键特性</h4>
 <ul>
@@ -435,7 +435,7 @@
     <span class="p">)</span>
 </code></pre></div>
 
-<h3 id="15-api">1.5 自动 API 文档</h3>
+<h3 id="section-15-api">1.5 自动 API 文档</h3>
 <p>FastAPI 自动生成交互式 API 文档：<br />
 - Swagger UI: <code>http://localhost:8000/docs</code><br />
 - ReDoc: <code>http://localhost:8000/redoc</code></p>
@@ -447,8 +447,8 @@
 <li><strong>Pydantic 模型</strong>: 使用 Pydantic 进行数据验证，确保数据安全</li>
 </ol>
 <hr />
-<h2 id="2-sqlalchemy-orm">2. SQLAlchemy ORM 与数据库设计</h2>
-<h3 id="21-sqlalchemy">2.1 SQLAlchemy 核心概念</h3>
+<h2 id="section-2-sqlalchemy-orm">2. SQLAlchemy ORM 与数据库设计</h2>
+<h3 id="section-21-sqlalchemy">2.1 SQLAlchemy 核心概念</h3>
 <p>SQLAlchemy 是 Python 最流行的 ORM（对象关系映射）框架，提供了 SQL 工具包和 ORM。</p>
 <h4 id="section-e8b67e2f">项目中的数据库配置</h4>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/core/database.py</span>
@@ -520,7 +520,7 @@
     <span class="k">pass</span>
 </code></pre></div>
 
-<h3 id="24-alembic">2.4 Alembic 数据库迁移</h3>
+<h3 id="section-24-alembic">2.4 Alembic 数据库迁移</h3>
 <p>Alembic 是 SQLAlchemy 的数据库迁移工具，用于版本控制数据库结构。</p>
 <h4 id="section-15fca100">迁移配置</h4>
 <div class="highlight"><pre><span></span><code><span class="c1"># alembic/env.py</span>
@@ -618,8 +618,8 @@ alembic<span class="w"> </span><span class="nb">history</span>
 <li><strong>连接池</strong>: 配置合适的连接池大小和回收时间</li>
 </ol>
 <hr />
-<h2 id="3-redis">3. Redis 缓存与连接池管理</h2>
-<h3 id="31-redis">3.1 Redis 基础</h3>
+<h2 id="section-3-redis">3. Redis 缓存与连接池管理</h2>
+<h3 id="section-31-redis">3.1 Redis 基础</h3>
 <p>Redis 是一个开源的内存数据结构存储，用作数据库、缓存和消息代理。</p>
 <h4 id="section-7b47fedd">项目中的用途</h4>
 <ol>
@@ -628,7 +628,7 @@ alembic<span class="w"> </span><span class="nb">history</span>
 <li><strong>Celery 消息队列</strong>: 任务消息代理和结果后端</li>
 <li><strong>计数器</strong>: 限流、统计</li>
 </ol>
-<h3 id="32-redis">3.2 Redis 连接池管理</h3>
+<h3 id="section-32-redis">3.2 Redis 连接池管理</h3>
 <p>项目实现了完整的 Redis 连接池管理，支持动态配置和健康检查。</p>
 <h4 id="section-2a1040c9">连接池实现</h4>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/core/redis_client.py</span>
@@ -671,7 +671,7 @@ alembic<span class="w"> </span><span class="nb">history</span>
         <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">optimal_connections</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="mi">100</span><span class="p">)</span>
 </code></pre></div>
 
-<h3 id="33-redis">3.3 Redis 操作</h3>
+<h3 id="section-33-redis">3.3 Redis 操作</h3>
 <h4 id="section-b7b05952">基本操作</h4>
 <div class="highlight"><pre><span></span><code><span class="c1"># 设置值（带过期时间）</span>
 <span class="n">redis_client</span><span class="o">.</span><span class="n">setex</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">)</span>  <span class="c1"># 300秒过期</span>
@@ -753,8 +753,8 @@ alembic<span class="w"> </span><span class="nb">history</span>
 <li><strong>监控</strong>: 监控连接池使用情况，及时发现问题</li>
 </ol>
 <hr />
-<h2 id="4-celery">4. Celery 异步任务处理</h2>
-<h3 id="41-celery">4.1 Celery 核心概念</h3>
+<h2 id="section-4-celery">4. Celery 异步任务处理</h2>
+<h3 id="section-41-celery">4.1 Celery 核心概念</h3>
 <p>Celery 是一个分布式任务队列，用于处理异步任务和定时任务。</p>
 <h4 id="section-90030eae">核心组件</h4>
 <ul>
@@ -762,7 +762,7 @@ alembic<span class="w"> </span><span class="nb">history</span>
 <li><strong>Worker</strong>: 工作进程，执行任务</li>
 <li><strong>Backend</strong>: 结果后端，存储任务结果（项目中使用 Redis）</li>
 </ul>
-<h3 id="42-celery">4.2 Celery 配置</h3>
+<h3 id="section-42-celery">4.2 Celery 配置</h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/core/celery_app.py</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">celery</span><span class="w"> </span><span class="kn">import</span> <span class="n">Celery</span>
 
@@ -887,7 +887,7 @@ alembic<span class="w"> </span><span class="nb">history</span>
     <span class="n">error_message</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">)</span>
 </code></pre></div>
 
-<h3 id="46-worker">4.6 Worker 启动</h3>
+<h3 id="section-46-worker">4.6 Worker 启动</h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># celery_worker.py</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">app.core.celery_app</span><span class="w"> </span><span class="kn">import</span> <span class="n">celery_app</span>
 
@@ -924,8 +924,8 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
 <li><strong>监控</strong>: 监控任务执行情况，及时发现问题</li>
 </ol>
 <hr />
-<h2 id="5-jwt">5. JWT 认证与安全机制</h2>
-<h3 id="51-jwt">5.1 JWT 基础</h3>
+<h2 id="section-5-jwt">5. JWT 认证与安全机制</h2>
+<h3 id="section-51-jwt">5.1 JWT 基础</h3>
 <p>JWT (JSON Web Token) 是一种开放标准（RFC 7519），用于安全地传输信息。</p>
 <h4 id="jwt">JWT 结构</h4>
 <p>JWT 由三部分组成：<br />
@@ -1131,7 +1131,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
     <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;登出成功&quot;</span><span class="p">}</span>
 </code></pre></div>
 
-<h3 id="510">5.10 学习要点</h3>
+<h3 id="section-510">5.10 学习要点</h3>
 <ol>
 <li><strong>密钥管理</strong>: 使用强密钥，不要在代码中硬编码</li>
 <li><strong>令牌过期</strong>: 设置合理的过期时间，平衡安全性和用户体验</li>
@@ -1152,7 +1152,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
 └─────────────────────────────────┘
 </code></pre></div>
 
-<h3 id="62-api-endpoints">6.2 API 层（endpoints/）</h3>
+<h3 id="section-62-api-endpoints">6.2 API 层（endpoints/）</h3>
 <p>负责处理 HTTP 请求，调用服务层。</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/api/v1/endpoints/users.py</span>
 <span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/me&quot;</span><span class="p">)</span>
@@ -1166,7 +1166,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
     <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="63-services">6.3 服务层（services/）</h3>
+<h3 id="section-63-services">6.3 服务层（services/）</h3>
 <p>包含业务逻辑，可被多个端点复用。</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/services/user_service.py</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">UserService</span><span class="p">:</span>
@@ -1183,7 +1183,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
         <span class="k">return</span> <span class="n">user</span>
 </code></pre></div>
 
-<h3 id="64-models">6.4 数据模型层（models/）</h3>
+<h3 id="section-64-models">6.4 数据模型层（models/）</h3>
 <p>定义数据库表结构。</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/models/user.py</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">User</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
@@ -1191,7 +1191,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
     <span class="c1"># ... 字段定义</span>
 </code></pre></div>
 
-<h3 id="65-schemas">6.5 数据验证层（schemas/）</h3>
+<h3 id="section-65-schemas">6.5 数据验证层（schemas/）</h3>
 <p>使用 Pydantic 定义请求/响应数据结构。</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/schemas/user.py</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">UserRegister</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
@@ -1251,7 +1251,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;调试信息: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </code></pre></div>
 
-<h3 id="610">6.10 学习要点</h3>
+<h3 id="section-610">6.10 学习要点</h3>
 <ol>
 <li><strong>单一职责</strong>: 每个模块只负责一个功能</li>
 <li><strong>依赖注入</strong>: 使用依赖注入提高可测试性</li>
@@ -1393,7 +1393,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
     <span class="k">assert</span> <span class="s2">&quot;access_token&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 </code></pre></div>
 
-<h3 id="83-docker">8.3 Docker 部署</h3>
+<h3 id="section-83-docker">8.3 Docker 部署</h3>
 <div class="highlight"><pre><span></span><code><span class="c"># Dockerfile</span>
 <span class="k">FROM</span><span class="w"> </span><span class="s">python:3.11-slim</span>
 
@@ -1507,11 +1507,11 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
 </ul>
 <hr />
 <h2 id="section-a3f7ed5c">🔧 实践练习</h2>
-<h3 id="1-api">练习 1: 创建新的 API 端点</h3>
+<h3 id="section-1-api">练习 1: 创建新的 API 端点</h3>
 <p>创建一个新的端点，实现用户资料更新功能。</p>
 <h3 id="section-ae28422d">练习 2: 实现缓存机制</h3>
 <p>为热点数据添加 Redis 缓存。</p>
-<h3 id="3-celery">练习 3: 添加新的 Celery 任务</h3>
+<h3 id="section-3-celery">练习 3: 添加新的 Celery 任务</h3>
 <p>创建一个新的异步任务，实现数据导出功能。</p>
 <h3 id="section-ca904cef">练习 4: 编写单元测试</h3>
 <p>为关键功能编写单元测试。</p>
