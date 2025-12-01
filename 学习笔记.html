@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Station Web API 技术栈学习笔记</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        
+        h2 {
+            color: #34495e;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        h4, h5, h6 {
+            color: #666;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        
+        pre {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            color: inherit;
+        }
+        
+        blockquote {
+            border-left: 4px solid #3498db;
+            padding-left: 20px;
+            margin: 20px 0;
+            color: #666;
+            font-style: italic;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        hr {
+            border: none;
+            border-top: 2px solid #ecf0f1;
+            margin: 40px 0;
+        }
+        
+        .toc {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+        
+        .toc ul {
+            list-style-type: none;
+            margin-left: 0;
+        }
+        
+        .toc li {
+            margin-bottom: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            body {
+                padding: 10px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+    <div class="container">
+        <h1 id="data-station-web-api">Data Station Web API 技术栈学习笔记<a class="headerlink" href="#data-station-web-api" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>基于 FastAPI + Celery + Redis + PostgreSQL 的现代化 Web API 框架完整技术解析</p>
+</blockquote>
+<hr />
+<h2 id="_1">📚 目录<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#项目概述">项目概述</a></li>
+<li><a href="#1-fastapi-框架">FastAPI 框架</a></li>
+<li><a href="#2-sqlalchemy-orm-与数据库设计">SQLAlchemy ORM 与数据库设计</a></li>
+<li><a href="#3-redis-缓存与连接池管理">Redis 缓存与连接池管理</a></li>
+<li><a href="#4-celery-异步任务处理">Celery 异步任务处理</a></li>
+<li><a href="#5-jwt-认证与安全机制">JWT 认证与安全机制</a></li>
+<li><a href="#6-项目架构设计模式">项目架构设计模式</a></li>
+<li><a href="#7-云服务集成">云服务集成</a></li>
+<li><a href="#8-测试与部署">测试与部署</a></li>
+<li><a href="#9-最佳实践总结">最佳实践总结</a></li>
+</ol>
+<hr />
+<h2 id="_2">项目概述<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h3 id="_3">技术栈总览<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<p>这是一个基于 <strong>FastAPI</strong> 构建的现代化 Web API 框架，采用了完整的企业级技术栈：</p>
+<ul>
+<li><strong>Web 框架</strong>: FastAPI (异步、高性能)</li>
+<li><strong>数据库</strong>: PostgreSQL + SQLAlchemy ORM</li>
+<li><strong>数据库迁移</strong>: Alembic</li>
+<li><strong>缓存/消息队列</strong>: Redis</li>
+<li><strong>异步任务</strong>: Celery</li>
+<li><strong>认证授权</strong>: JWT (JSON Web Tokens)</li>
+<li><strong>密码加密</strong>: bcrypt</li>
+<li><strong>数据验证</strong>: Pydantic</li>
+<li><strong>日志系统</strong>: loguru</li>
+<li><strong>云服务</strong>: 阿里云(短信、邮件) + 腾讯云(验证码)</li>
+<li><strong>容器化</strong>: Docker</li>
+<li><strong>测试框架</strong>: pytest</li>
+</ul>
+<h3 id="_4">项目结构<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>web-api/
+├── app/                    # 主应用代码
+│   ├── api/v1/endpoints/  # API 端点
+│   ├── core/              # 核心配置和工具
+│   ├── models/            # 数据模型
+│   ├── schemas/           # 数据验证模式
+│   └── services/          # 业务逻辑层
+├── alembic/               # 数据库迁移
+├── tests/                 # 测试文件
+├── scripts/               # 工具脚本
+├── main.py                # 应用入口
+└── celery_worker.py       # Celery Worker 启动
+</code></pre></div>
+
+<hr />
+<h2 id="1-fastapi">1. FastAPI 框架<a class="headerlink" href="#1-fastapi" title="Permanent link">&para;</a></h2>
+<h3 id="11-fastapi">1.1 FastAPI 核心概念<a class="headerlink" href="#11-fastapi" title="Permanent link">&para;</a></h3>
+<p>FastAPI 是一个现代、快速（高性能）的 Web 框架，用于构建基于标准 Python 类型提示的 API。</p>
+<h4 id="_5">关键特性<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>高性能</strong>: 基于 Starlette 和 Pydantic，性能与 NodeJS 和 Go 相当</li>
+<li><strong>易用性</strong>: 自动生成 API 文档（Swagger/OpenAPI）</li>
+<li><strong>类型安全</strong>: 基于 Python 3.6+ 的类型提示</li>
+<li><strong>异步支持</strong>: 原生支持 async/await</li>
+</ul>
+<h4 id="_6">项目中的应用<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># main.py - FastAPI 应用初始化</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi.middleware.cors</span><span class="w"> </span><span class="kn">import</span> <span class="n">CORSMiddleware</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">app_name</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">debug</span><span class="p">)</span>
+
+<span class="c1"># CORS 中间件配置</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span>
+    <span class="n">CORSMiddleware</span><span class="p">,</span>
+    <span class="n">allow_origins</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>
+    <span class="n">allow_credentials</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">allow_methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>
+    <span class="n">allow_headers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="c1"># 包含路由</span>
+<span class="n">app</span><span class="o">.</span><span class="n">include_router</span><span class="p">(</span><span class="n">api_router</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;/api/v1&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="12">1.2 路由系统<a class="headerlink" href="#12" title="Permanent link">&para;</a></h3>
+<p>FastAPI 使用装饰器定义路由，支持异步和同步处理函数。</p>
+<h4 id="_7">路由定义示例<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/api/v1/endpoints/auth.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">APIRouter</span><span class="p">,</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">HTTPException</span>
+
+<span class="n">router</span> <span class="o">=</span> <span class="n">APIRouter</span><span class="p">()</span>
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/register&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">register_user</span><span class="p">(</span>
+    <span class="n">user_data</span><span class="p">:</span> <span class="n">UserRegister</span><span class="p">,</span>  <span class="c1"># Pydantic 模型自动验证</span>
+    <span class="n">database</span><span class="p">:</span> <span class="n">Session</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_database</span><span class="p">),</span>  <span class="c1"># 依赖注入</span>
+<span class="p">):</span>
+    <span class="c1"># 业务逻辑</span>
+    <span class="k">pass</span>
+</code></pre></div>
+
+<h4 id="_8">依赖注入系统<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h4>
+<p>FastAPI 的依赖注入是其核心特性之一，用于：<br />
+- 数据库会话管理<br />
+- 用户认证<br />
+- 权限检查</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 数据库依赖</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_database</span><span class="p">():</span>
+    <span class="n">database</span> <span class="o">=</span> <span class="n">SessionLocal</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">database</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">database</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="c1"># 认证依赖</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_current_user</span><span class="p">(</span>
+    <span class="n">credentials</span><span class="p">:</span> <span class="n">HTTPAuthorizationCredentials</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">security</span><span class="p">),</span>
+    <span class="n">database</span><span class="p">:</span> <span class="n">Session</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_database</span><span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">User</span><span class="p">:</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">credentials</span><span class="o">.</span><span class="n">credentials</span>
+    <span class="n">token_data</span> <span class="o">=</span> <span class="n">verify_token</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+    <span class="c1"># ... 验证逻辑</span>
+    <span class="k">return</span> <span class="n">user</span>
+</code></pre></div>
+
+<h3 id="13">1.3 请求/响应模型<a class="headerlink" href="#13" title="Permanent link">&para;</a></h3>
+<p>使用 Pydantic 模型定义请求和响应的数据结构，自动进行验证和序列化。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/schemas/user.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">EmailStr</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">UserRegister</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">username</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">email</span><span class="p">:</span> <span class="n">EmailStr</span>
+    <span class="n">phone_number</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">password</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">sms_code</span><span class="p">:</span> <span class="nb">str</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">UserResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">username</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">email</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">is_active</span><span class="p">:</span> <span class="nb">bool</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Config</span><span class="p">:</span>
+        <span class="n">from_attributes</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># 支持从 ORM 模型转换</span>
+</code></pre></div>
+
+<h3 id="14">1.4 异常处理<a class="headerlink" href="#14" title="Permanent link">&para;</a></h3>
+<p>FastAPI 使用标准的 HTTPException 处理错误。</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPException</span><span class="p">,</span> <span class="n">status</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span>
+        <span class="n">status_code</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_404_NOT_FOUND</span><span class="p">,</span>
+        <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;用户不存在&quot;</span>
+    <span class="p">)</span>
+</code></pre></div>
+
+<h3 id="15-api">1.5 自动 API 文档<a class="headerlink" href="#15-api" title="Permanent link">&para;</a></h3>
+<p>FastAPI 自动生成交互式 API 文档：<br />
+- Swagger UI: <code>http://localhost:8000/docs</code><br />
+- ReDoc: <code>http://localhost:8000/redoc</code></p>
+<h3 id="16">1.6 学习要点<a class="headerlink" href="#16" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>异步编程</strong>: 使用 <code>async def</code> 定义异步端点，使用 <code>await</code> 调用异步操作</li>
+<li><strong>类型提示</strong>: 充分利用类型提示，提高代码可读性和 IDE 支持</li>
+<li><strong>依赖注入</strong>: 合理使用依赖注入，减少代码重复</li>
+<li><strong>Pydantic 模型</strong>: 使用 Pydantic 进行数据验证，确保数据安全</li>
+</ol>
+<hr />
+<h2 id="2-sqlalchemy-orm">2. SQLAlchemy ORM 与数据库设计<a class="headerlink" href="#2-sqlalchemy-orm" title="Permanent link">&para;</a></h2>
+<h3 id="21-sqlalchemy">2.1 SQLAlchemy 核心概念<a class="headerlink" href="#21-sqlalchemy" title="Permanent link">&para;</a></h3>
+<p>SQLAlchemy 是 Python 最流行的 ORM（对象关系映射）框架，提供了 SQL 工具包和 ORM。</p>
+<h4 id="_9">项目中的数据库配置<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/core/database.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_engine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.orm</span><span class="w"> </span><span class="kn">import</span> <span class="n">sessionmaker</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.ext.declarative</span><span class="w"> </span><span class="kn">import</span> <span class="n">declarative_base</span>
+
+<span class="c1"># 创建数据库引擎</span>
+<span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">database_url</span><span class="p">,</span>
+    <span class="n">pool_pre_ping</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>      <span class="c1"># 连接前检查连接是否有效</span>
+    <span class="n">pool_recycle</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>        <span class="c1"># 连接回收时间（秒）</span>
+<span class="p">)</span>
+
+<span class="c1"># 创建会话工厂</span>
+<span class="n">SessionLocal</span> <span class="o">=</span> <span class="n">sessionmaker</span><span class="p">(</span><span class="n">autocommit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">autoflush</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bind</span><span class="o">=</span><span class="n">engine</span><span class="p">)</span>
+
+<span class="c1"># 基础模型类</span>
+<span class="n">Base</span> <span class="o">=</span> <span class="n">declarative_base</span><span class="p">()</span>
+</code></pre></div>
+
+<h3 id="22">2.2 数据模型定义<a class="headerlink" href="#22" title="Permanent link">&para;</a></h3>
+<p>使用 SQLAlchemy 的声明式语法定义数据模型。</p>
+<h4 id="_10">用户模型示例<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/models/user.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">Boolean</span><span class="p">,</span> <span class="n">DateTime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.orm</span><span class="w"> </span><span class="kn">import</span> <span class="n">relationship</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.sql</span><span class="w"> </span><span class="kn">import</span> <span class="n">func</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">User</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;users&quot;</span>
+
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">uuid</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">36</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()),</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">email</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">hashed_password</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">is_active</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Boolean</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">created_at</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">DateTime</span><span class="p">(</span><span class="n">timezone</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">server_default</span><span class="o">=</span><span class="n">func</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+
+    <span class="c1"># 关系定义</span>
+    <span class="n">tasks</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">&quot;Task&quot;</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">&quot;user&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h4 id="_11">关键概念<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>表定义</strong>: <code>__tablename__</code> 指定数据库表名</li>
+<li><strong>列定义</strong>: 使用 <code>Column</code> 定义字段，指定类型、约束</li>
+<li><strong>索引</strong>: 使用 <code>index=True</code> 创建索引</li>
+<li><strong>关系</strong>: 使用 <code>relationship</code> 定义表间关系</li>
+<li><strong>时间戳</strong>: 使用 <code>server_default=func.now()</code> 设置默认时间</li>
+</ol>
+<h3 id="23">2.3 数据库会话管理<a class="headerlink" href="#23" title="Permanent link">&para;</a></h3>
+<p>使用 FastAPI 的依赖注入管理数据库会话。</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_database</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取数据库会话（依赖注入）&quot;&quot;&quot;</span>
+    <span class="n">database</span> <span class="o">=</span> <span class="n">SessionLocal</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">database</span>  <span class="c1"># 生成器模式，确保关闭连接</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">database</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="c1"># 在路由中使用</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/users/me&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_current_user_info</span><span class="p">(</span>
+    <span class="n">database</span><span class="p">:</span> <span class="n">Session</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_database</span><span class="p">),</span>
+<span class="p">):</span>
+    <span class="c1"># 使用 database 进行查询</span>
+    <span class="k">pass</span>
+</code></pre></div>
+
+<h3 id="24-alembic">2.4 Alembic 数据库迁移<a class="headerlink" href="#24-alembic" title="Permanent link">&para;</a></h3>
+<p>Alembic 是 SQLAlchemy 的数据库迁移工具，用于版本控制数据库结构。</p>
+<h4 id="_12">迁移配置<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># alembic/env.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.core.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">Base</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.models.user</span><span class="w"> </span><span class="kn">import</span> <span class="n">User</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.models.task</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
+
+<span class="c1"># 导入所有模型，用于自动生成迁移</span>
+<span class="n">target_metadata</span> <span class="o">=</span> <span class="n">Base</span><span class="o">.</span><span class="n">metadata</span>
+</code></pre></div>
+
+<h4 id="_13">常用迁移命令<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># 创建迁移脚本</span>
+alembic<span class="w"> </span>revision<span class="w"> </span>--autogenerate<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;描述信息&quot;</span>
+
+<span class="c1"># 升级数据库</span>
+alembic<span class="w"> </span>upgrade<span class="w"> </span>head
+
+<span class="c1"># 降级数据库</span>
+alembic<span class="w"> </span>downgrade<span class="w"> </span>-1
+
+<span class="c1"># 查看当前版本</span>
+alembic<span class="w"> </span>current
+
+<span class="c1"># 查看历史</span>
+alembic<span class="w"> </span><span class="nb">history</span>
+</code></pre></div>
+
+<h4 id="_14">迁移文件示例<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># alembic/versions/xxxxx_initial_schema.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">upgrade</span><span class="p">():</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">create_table</span><span class="p">(</span>
+        <span class="s1">&#39;users&#39;</span><span class="p">,</span>
+        <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">Integer</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+        <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">String</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+        <span class="c1"># ...</span>
+    <span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">downgrade</span><span class="p">():</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">drop_table</span><span class="p">(</span><span class="s1">&#39;users&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="25">2.5 查询操作<a class="headerlink" href="#25" title="Permanent link">&para;</a></h3>
+<h4 id="_15">基本查询<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># 查询单个</span>
+<span class="n">user</span> <span class="o">=</span> <span class="n">database</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">user_id</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+<span class="c1"># 查询多个</span>
+<span class="n">users</span> <span class="o">=</span> <span class="n">database</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">is_active</span> <span class="o">==</span> <span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+<span class="c1"># 条件查询</span>
+<span class="n">user</span> <span class="o">=</span> <span class="n">database</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+    <span class="n">User</span><span class="o">.</span><span class="n">username</span> <span class="o">==</span> <span class="n">username</span><span class="p">,</span>
+    <span class="n">User</span><span class="o">.</span><span class="n">email</span> <span class="o">==</span> <span class="n">email</span>
+<span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+<span class="c1"># 排序和分页</span>
+<span class="n">users</span> <span class="o">=</span> <span class="n">database</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span>\
+    <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">desc</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">created_at</span><span class="p">))</span>\
+    <span class="o">.</span><span class="n">offset</span><span class="p">(</span><span class="n">skip</span><span class="p">)</span>\
+    <span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="n">limit</span><span class="p">)</span>\
+    <span class="o">.</span><span class="n">all</span><span class="p">()</span>
+</code></pre></div>
+
+<h4 id="_16">关联查询<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># 预加载关联数据</span>
+<span class="n">user</span> <span class="o">=</span> <span class="n">database</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span>\
+    <span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">joinedload</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">tasks</span><span class="p">))</span>\
+    <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">user_id</span><span class="p">)</span>\
+    <span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+<span class="c1"># 连接查询</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">database</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">,</span> <span class="n">Task</span><span class="p">)</span>\
+    <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Task</span><span class="p">,</span> <span class="n">User</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">Task</span><span class="o">.</span><span class="n">user_id</span><span class="p">)</span>\
+    <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Task</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;completed&quot;</span><span class="p">)</span>\
+    <span class="o">.</span><span class="n">all</span><span class="p">()</span>
+</code></pre></div>
+
+<h3 id="26">2.6 事务管理<a class="headerlink" href="#26" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">try</span><span class="p">:</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="n">email</span><span class="o">=</span><span class="s2">&quot;test@example.com&quot;</span><span class="p">)</span>
+    <span class="n">database</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+    <span class="n">database</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">database</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+    <span class="k">raise</span>
+</code></pre></div>
+
+<h3 id="27">2.7 学习要点<a class="headerlink" href="#27" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>模型设计</strong>: 合理设计模型结构，考虑性能和扩展性</li>
+<li><strong>索引优化</strong>: 为常用查询字段创建索引</li>
+<li><strong>关系管理</strong>: 正确使用 relationship，避免 N+1 查询</li>
+<li><strong>迁移管理</strong>: 使用 Alembic 管理数据库版本，保持一致性</li>
+<li><strong>连接池</strong>: 配置合适的连接池大小和回收时间</li>
+</ol>
+<hr />
+<h2 id="3-redis">3. Redis 缓存与连接池管理<a class="headerlink" href="#3-redis" title="Permanent link">&para;</a></h2>
+<h3 id="31-redis">3.1 Redis 基础<a class="headerlink" href="#31-redis" title="Permanent link">&para;</a></h3>
+<p>Redis 是一个开源的内存数据结构存储，用作数据库、缓存和消息代理。</p>
+<h4 id="_17">项目中的用途<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>缓存</strong>: 存储验证码、会话数据</li>
+<li><strong>令牌黑名单</strong>: JWT 令牌撤销</li>
+<li><strong>Celery 消息队列</strong>: 任务消息代理和结果后端</li>
+<li><strong>计数器</strong>: 限流、统计</li>
+</ol>
+<h3 id="32-redis">3.2 Redis 连接池管理<a class="headerlink" href="#32-redis" title="Permanent link">&para;</a></h3>
+<p>项目实现了完整的 Redis 连接池管理，支持动态配置和健康检查。</p>
+<h4 id="_18">连接池实现<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/core/redis_client.py</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RedisManager</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Redis连接管理器&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pool</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_connection</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_init_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;初始化Redis连接池&quot;&quot;&quot;</span>
+        <span class="n">max_connections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_optimal_connections</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pool</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">ConnectionPool</span><span class="o">.</span><span class="n">from_url</span><span class="p">(</span>
+            <span class="n">settings</span><span class="o">.</span><span class="n">redis_url</span><span class="p">,</span>
+            <span class="n">max_connections</span><span class="o">=</span><span class="n">max_connections</span><span class="p">,</span>
+            <span class="n">retry_on_timeout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">socket_keepalive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">health_check_interval</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+            <span class="n">socket_connect_timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">socket_timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">Redis</span><span class="p">(</span><span class="n">connection_pool</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_pool</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">ping</span><span class="p">()</span>  <span class="c1"># 测试连接</span>
+</code></pre></div>
+
+<h4 id="_19">连接池大小优化<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_get_optimal_connections</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;根据环境获取最优连接数&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">10</span>  <span class="c1"># 开发环境</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># 生产环境：根据CPU核心数调整</span>
+        <span class="n">cpu_count</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+        <span class="n">connections_per_cpu</span> <span class="o">=</span> <span class="mi">8</span>
+        <span class="n">optimal_connections</span> <span class="o">=</span> <span class="n">cpu_count</span> <span class="o">*</span> <span class="n">connections_per_cpu</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">optimal_connections</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="mi">100</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="33-redis">3.3 Redis 操作<a class="headerlink" href="#33-redis" title="Permanent link">&para;</a></h3>
+<h4 id="_20">基本操作<a class="headerlink" href="#_20" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># 设置值（带过期时间）</span>
+<span class="n">redis_client</span><span class="o">.</span><span class="n">setex</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">)</span>  <span class="c1"># 300秒过期</span>
+
+<span class="c1"># 获取值</span>
+<span class="n">value</span> <span class="o">=</span> <span class="n">redis_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">)</span>
+
+<span class="c1"># 删除键</span>
+<span class="n">redis_client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">)</span>
+
+<span class="c1"># 检查键是否存在</span>
+<span class="n">exists</span> <span class="o">=</span> <span class="n">redis_client</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">)</span>
+
+<span class="c1"># 设置过期时间</span>
+<span class="n">redis_client</span><span class="o">.</span><span class="n">expire</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span>
+</code></pre></div>
+
+<h4 id="_21">项目中的应用场景<a class="headerlink" href="#_21" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>短信验证码存储</strong></li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="c1"># 存储验证码（5分钟过期）</span>
+<span class="n">redis_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;sms_verification:</span><span class="si">{</span><span class="n">mobile</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="n">redis_client</span><span class="o">.</span><span class="n">setex</span><span class="p">(</span><span class="n">redis_key</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="n">code</span><span class="p">)</span>
+
+<span class="c1"># 验证验证码</span>
+<span class="n">stored_code</span> <span class="o">=</span> <span class="n">redis_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">redis_key</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">stored_code</span> <span class="ow">and</span> <span class="n">stored_code</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">code</span><span class="p">:</span>
+    <span class="n">redis_client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">redis_key</span><span class="p">)</span>  <span class="c1"># 验证后删除</span>
+    <span class="k">return</span> <span class="kc">True</span>
+</code></pre></div>
+
+<ol>
+<li><strong>JWT 令牌黑名单</strong></li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="c1"># 将令牌加入黑名单</span>
+<span class="n">redis_client</span><span class="o">.</span><span class="n">setex</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;blacklist:</span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">expires_in</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
+
+<span class="c1"># 检查令牌是否在黑名单</span>
+<span class="n">is_blacklisted</span> <span class="o">=</span> <span class="n">redis_client</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;blacklist:</span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+</code></pre></div>
+
+<ol>
+<li><strong>用户登出标记</strong></li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="c1"># 标记用户已登出（7天有效）</span>
+<span class="n">redis_client</span><span class="o">.</span><span class="n">setex</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;user_logout:</span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="mi">7</span><span class="o">*</span><span class="mi">24</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">60</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
+
+<span class="c1"># 检查用户是否已登出</span>
+<span class="n">is_logged_out</span> <span class="o">=</span> <span class="n">redis_client</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;user_logout:</span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+</code></pre></div>
+
+<h3 id="34">3.4 连接池监控<a class="headerlink" href="#34" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_pool_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取连接池统计信息&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;max_connections&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pool</span><span class="o">.</span><span class="n">max_connections</span><span class="p">,</span>
+        <span class="s2">&quot;current_connections&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pool</span><span class="o">.</span><span class="n">_connections</span><span class="p">),</span>
+        <span class="s2">&quot;available_connections&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pool</span><span class="o">.</span><span class="n">max_connections</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pool</span><span class="o">.</span><span class="n">_connections</span><span class="p">),</span>
+        <span class="s2">&quot;connection_usage&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pool</span><span class="o">.</span><span class="n">_connections</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_pool</span><span class="o">.</span><span class="n">max_connections</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+</code></pre></div>
+
+<h3 id="35">3.5 故障处理<a class="headerlink" href="#35" title="Permanent link">&para;</a></h3>
+<p>项目实现了 Mock Redis 客户端，当 Redis 不可用时仍可运行（功能受限）。</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">_MockRedisClient</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;模拟Redis客户端，当Redis不可用时使用&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;模拟Redis操作: setex </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+</code></pre></div>
+
+<h3 id="36">3.6 学习要点<a class="headerlink" href="#36" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>连接池管理</strong>: 使用连接池避免频繁创建连接</li>
+<li><strong>过期时间</strong>: 合理设置键的过期时间，避免内存泄漏</li>
+<li><strong>键命名规范</strong>: 使用统一的前缀和命名规范</li>
+<li><strong>故障处理</strong>: 实现降级策略，提高系统可用性</li>
+<li><strong>监控</strong>: 监控连接池使用情况，及时发现问题</li>
+</ol>
+<hr />
+<h2 id="4-celery">4. Celery 异步任务处理<a class="headerlink" href="#4-celery" title="Permanent link">&para;</a></h2>
+<h3 id="41-celery">4.1 Celery 核心概念<a class="headerlink" href="#41-celery" title="Permanent link">&para;</a></h3>
+<p>Celery 是一个分布式任务队列，用于处理异步任务和定时任务。</p>
+<h4 id="_22">核心组件<a class="headerlink" href="#_22" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Broker</strong>: 消息代理（项目中使用 Redis）</li>
+<li><strong>Worker</strong>: 工作进程，执行任务</li>
+<li><strong>Backend</strong>: 结果后端，存储任务结果（项目中使用 Redis）</li>
+</ul>
+<h3 id="42-celery">4.2 Celery 配置<a class="headerlink" href="#42-celery" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/core/celery_app.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">celery</span><span class="w"> </span><span class="kn">import</span> <span class="n">Celery</span>
+
+<span class="n">celery_app</span> <span class="o">=</span> <span class="n">Celery</span><span class="p">(</span>
+    <span class="s2">&quot;data_station_api&quot;</span><span class="p">,</span>
+    <span class="n">broker</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">celery_broker_url</span><span class="p">,</span>
+    <span class="n">backend</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">celery_result_backend</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">celery_app</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+    <span class="n">task_serializer</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span>
+    <span class="n">accept_content</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;json&quot;</span><span class="p">],</span>
+    <span class="n">result_serializer</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span>
+    <span class="n">timezone</span><span class="o">=</span><span class="s2">&quot;UTC&quot;</span><span class="p">,</span>
+    <span class="n">enable_utc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">task_track_started</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">task_time_limit</span><span class="o">=</span><span class="mi">30</span> <span class="o">*</span> <span class="mi">60</span><span class="p">,</span>  <span class="c1"># 30分钟超时</span>
+    <span class="n">broker_connection_retry_on_startup</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">result_expires</span><span class="o">=</span><span class="mi">3600</span><span class="p">,</span>  <span class="c1"># 结果过期时间1小时</span>
+    <span class="n">worker_prefetch_multiplier</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">task_acks_late</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="43">4.3 任务定义<a class="headerlink" href="#43" title="Permanent link">&para;</a></h3>
+<p>使用装饰器定义 Celery 任务。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 简单任务</span>
+<span class="nd">@celery_app</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;health_check_task&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">health_check_task</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;healthy&quot;</span><span class="p">}</span>
+
+<span class="c1"># 复杂任务（支持状态更新）</span>
+<span class="nd">@celery_app</span><span class="o">.</span><span class="n">task</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;fetch_data_task&quot;</span><span class="p">,</span>
+    <span class="n">bind</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># 绑定任务实例，可访问 self</span>
+    <span class="n">max_retries</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">default_retry_delay</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+    <span class="n">autoretry_for</span><span class="o">=</span><span class="p">(</span><span class="ne">Exception</span><span class="p">,),</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fetch_data_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="n">task_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">id</span>
+
+    <span class="c1"># 更新任务状态</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span>
+        <span class="n">state</span><span class="o">=</span><span class="s2">&quot;PROCESSING&quot;</span><span class="p">,</span>
+        <span class="n">meta</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;progress&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;开始处理&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># 任务逻辑</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+            <span class="n">progress</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(((</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span>
+                <span class="n">state</span><span class="o">=</span><span class="s2">&quot;PROCESSING&quot;</span><span class="p">,</span>
+                <span class="n">meta</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;progress&quot;</span><span class="p">:</span> <span class="n">progress</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;处理步骤 </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
+            <span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span>
+            <span class="n">state</span><span class="o">=</span><span class="s2">&quot;SUCCESS&quot;</span><span class="p">,</span>
+            <span class="n">meta</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;progress&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span>
+            <span class="n">state</span><span class="o">=</span><span class="s2">&quot;FAILURE&quot;</span><span class="p">,</span>
+            <span class="n">meta</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}</span>
+        <span class="p">)</span>
+        <span class="k">raise</span>
+</code></pre></div>
+
+<h3 id="44">4.4 任务提交和查询<a class="headerlink" href="#44" title="Permanent link">&para;</a></h3>
+<h4 id="_23">提交任务<a class="headerlink" href="#_23" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># 在 API 端点中提交任务</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.core.celery_app</span><span class="w"> </span><span class="kn">import</span> <span class="n">celery_app</span>
+
+<span class="n">task</span> <span class="o">=</span> <span class="n">celery_app</span><span class="o">.</span><span class="n">send_task</span><span class="p">(</span>
+    <span class="s2">&quot;fetch_data_task&quot;</span><span class="p">,</span>
+    <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">task_params</span><span class="p">],</span>
+    <span class="n">countdown</span><span class="o">=</span><span class="mi">10</span>  <span class="c1"># 延迟10秒执行</span>
+<span class="p">)</span>
+
+<span class="n">task_id</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">id</span>
+</code></pre></div>
+
+<h4 id="_24">查询任务状态<a class="headerlink" href="#_24" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># 查询任务状态</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">celery.result</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncResult</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">AsyncResult</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="n">celery_app</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">ready</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">successful</span><span class="p">():</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">info</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="c1"># 任务还在运行，获取当前状态</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">state</span>
+    <span class="n">meta</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">info</span>
+</code></pre></div>
+
+<h3 id="45">4.5 任务状态管理<a class="headerlink" href="#45" title="Permanent link">&para;</a></h3>
+<p>项目在数据库中存储任务状态，与 Celery 状态同步。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/models/task.py</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TaskStatus</span><span class="p">:</span>
+    <span class="n">PENDING</span> <span class="o">=</span> <span class="s2">&quot;pending&quot;</span>
+    <span class="n">QUEUED</span> <span class="o">=</span> <span class="s2">&quot;queued&quot;</span>
+    <span class="n">PROCESSING</span> <span class="o">=</span> <span class="s2">&quot;processing&quot;</span>
+    <span class="n">COMPLETED</span> <span class="o">=</span> <span class="s2">&quot;completed&quot;</span>
+    <span class="n">FAILED</span> <span class="o">=</span> <span class="s2">&quot;failed&quot;</span>
+    <span class="n">CANCELLED</span> <span class="o">=</span> <span class="s2">&quot;cancelled&quot;</span>
+    <span class="n">EXPIRED</span> <span class="o">=</span> <span class="s2">&quot;expired&quot;</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Task</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="n">uuid</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">36</span><span class="p">),</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">user_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">&quot;users.id&quot;</span><span class="p">))</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">TaskStatus</span><span class="o">.</span><span class="n">PENDING</span><span class="p">)</span>
+    <span class="n">progress</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">JSON</span><span class="p">)</span>
+    <span class="n">error_message</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="46-worker">4.6 Worker 启动<a class="headerlink" href="#46-worker" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># celery_worker.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.core.celery_app</span><span class="w"> </span><span class="kn">import</span> <span class="n">celery_app</span>
+
+<span class="n">celery_app</span><span class="o">.</span><span class="n">worker_main</span><span class="p">([</span>
+    <span class="s2">&quot;worker&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;--loglevel=info&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;--concurrency=2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;--queues=default&quot;</span><span class="p">,</span>
+<span class="p">])</span>
+</code></pre></div>
+
+<p>启动命令：</p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>celery_worker.py
+<span class="c1"># 或</span>
+celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span class="w"> </span>worker<span class="w"> </span>--loglevel<span class="o">=</span>info
+</code></pre></div>
+
+<h3 id="47">4.7 任务取消<a class="headerlink" href="#47" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 取消任务</span>
+<span class="n">celery_app</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">revoke</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">terminate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># 在数据库中更新状态</span>
+<span class="n">TaskService</span><span class="o">.</span><span class="n">update_task_status</span><span class="p">(</span>
+    <span class="n">database</span><span class="p">,</span> <span class="n">task_id</span><span class="p">,</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">CANCELLED</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="48">4.8 学习要点<a class="headerlink" href="#48" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>任务设计</strong>: 任务应该是幂等的，支持重试</li>
+<li><strong>状态更新</strong>: 及时更新任务状态，方便用户查询进度</li>
+<li><strong>错误处理</strong>: 实现完善的错误处理和重试机制</li>
+<li><strong>资源管理</strong>: 注意 Worker 的资源使用，避免内存泄漏</li>
+<li><strong>监控</strong>: 监控任务执行情况，及时发现问题</li>
+</ol>
+<hr />
+<h2 id="5-jwt">5. JWT 认证与安全机制<a class="headerlink" href="#5-jwt" title="Permanent link">&para;</a></h2>
+<h3 id="51-jwt">5.1 JWT 基础<a class="headerlink" href="#51-jwt" title="Permanent link">&para;</a></h3>
+<p>JWT (JSON Web Token) 是一种开放标准（RFC 7519），用于安全地传输信息。</p>
+<h4 id="jwt">JWT 结构<a class="headerlink" href="#jwt" title="Permanent link">&para;</a></h4>
+<p>JWT 由三部分组成：<br />
+- <strong>Header</strong>: 算法和令牌类型<br />
+- <strong>Payload</strong>: 数据（用户信息、过期时间等）<br />
+- <strong>Signature</strong>: 签名，用于验证令牌</p>
+<h4 id="jwt_1">项目中的 JWT 配置<a class="headerlink" href="#jwt_1" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/core/config.py</span>
+<span class="n">SECRET_KEY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SECRET_KEY&quot;</span><span class="p">)</span>
+<span class="n">ALGORITHM</span> <span class="o">=</span> <span class="s2">&quot;HS256&quot;</span>
+<span class="n">ACCESS_TOKEN_EXPIRE_MINUTES</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="n">REFRESH_TOKEN_EXPIRE_DAYS</span> <span class="o">=</span> <span class="mi">7</span>
+</code></pre></div>
+
+<h3 id="52">5.2 令牌生成<a class="headerlink" href="#52" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/core/security.py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jwt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timezone</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">create_access_token</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">expires_delta</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">timedelta</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;创建访问令牌&quot;&quot;&quot;</span>
+    <span class="n">to_encode</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">expires_delta</span><span class="p">:</span>
+        <span class="n">expire</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span> <span class="o">+</span> <span class="n">expires_delta</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">expire</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span>
+            <span class="n">minutes</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">access_token_expire_minutes</span>
+        <span class="p">)</span>
+
+    <span class="n">to_encode</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+        <span class="s2">&quot;exp&quot;</span><span class="p">:</span> <span class="n">expire</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;access&quot;</span>  <span class="c1"># 令牌类型</span>
+    <span class="p">})</span>
+
+    <span class="n">encoded_jwt</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
+        <span class="n">to_encode</span><span class="p">,</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">secret_key</span><span class="p">,</span>
+        <span class="n">algorithm</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">algorithm</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">encoded_jwt</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">create_refresh_token</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;创建刷新令牌&quot;&quot;&quot;</span>
+    <span class="n">to_encode</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">expire</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span>
+        <span class="n">days</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">refresh_token_expire_days</span>
+    <span class="p">)</span>
+
+    <span class="n">to_encode</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+        <span class="s2">&quot;exp&quot;</span><span class="p">:</span> <span class="n">expire</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;refresh&quot;</span>
+    <span class="p">})</span>
+
+    <span class="k">return</span> <span class="n">jwt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">to_encode</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">secret_key</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">algorithm</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="53">5.3 令牌验证<a class="headerlink" href="#53" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">verify_token</span><span class="p">(</span><span class="n">token</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TokenData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;验证令牌&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># 检查黑名单</span>
+        <span class="k">if</span> <span class="n">is_token_blacklisted</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span>
+                <span class="n">status_code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span>
+                <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;令牌已被注销&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># 解码令牌</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span>
+            <span class="n">token</span><span class="p">,</span>
+            <span class="n">settings</span><span class="o">.</span><span class="n">secret_key</span><span class="p">,</span>
+            <span class="n">algorithms</span><span class="o">=</span><span class="p">[</span><span class="n">settings</span><span class="o">.</span><span class="n">algorithm</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">username</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sub&quot;</span><span class="p">)</span>
+        <span class="n">user_id</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user_id&quot;</span><span class="p">)</span>
+        <span class="n">token_type</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">username</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">token_type</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;无效的令牌&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">TokenData</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span> <span class="n">user_id</span><span class="o">=</span><span class="n">user_id</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="n">jwt</span><span class="o">.</span><span class="n">ExpiredSignatureError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;令牌已过期&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">jwt</span><span class="o">.</span><span class="n">InvalidTokenError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;无效的令牌&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="54">5.4 令牌黑名单机制<a class="headerlink" href="#54" title="Permanent link">&para;</a></h3>
+<p>项目实现了令牌黑名单，用于登出时撤销令牌。</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_token_to_blacklist</span><span class="p">(</span><span class="n">token</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">expires_in</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1800</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;将令牌添加到黑名单&quot;&quot;&quot;</span>
+    <span class="n">redis_client</span><span class="o">.</span><span class="n">setex</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;blacklist:</span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">expires_in</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">True</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">is_token_blacklisted</span><span class="p">(</span><span class="n">token</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;检查令牌是否在黑名单中&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">redis_client</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;blacklist:</span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+</code></pre></div>
+
+<h3 id="55">5.5 用户认证依赖<a class="headerlink" href="#55" title="Permanent link">&para;</a></h3>
+<p>使用 FastAPI 的依赖注入实现认证。</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_current_user</span><span class="p">(</span>
+    <span class="n">credentials</span><span class="p">:</span> <span class="n">HTTPAuthorizationCredentials</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">security</span><span class="p">),</span>
+    <span class="n">database</span><span class="p">:</span> <span class="n">Session</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_database</span><span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">User</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取当前用户&quot;&quot;&quot;</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">credentials</span><span class="o">.</span><span class="n">credentials</span>
+    <span class="n">token_data</span> <span class="o">=</span> <span class="n">verify_token</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+
+    <span class="c1"># 检查用户是否已登出</span>
+    <span class="k">if</span> <span class="n">is_user_logged_out</span><span class="p">(</span><span class="n">token_data</span><span class="o">.</span><span class="n">user_id</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;用户已登出&quot;</span><span class="p">)</span>
+
+    <span class="n">user</span> <span class="o">=</span> <span class="n">database</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">token_data</span><span class="o">.</span><span class="n">user_id</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">is_active</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;用户不存在或已被禁用&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">user</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_current_admin_user</span><span class="p">(</span>
+    <span class="n">current_user</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_active_user</span><span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">User</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取当前管理员用户&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">current_user</span><span class="o">.</span><span class="n">role</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">UserRole</span><span class="o">.</span><span class="n">ADMIN</span><span class="p">,</span> <span class="n">UserRole</span><span class="o">.</span><span class="n">SUPER_ADMIN</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">403</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;需要管理员权限&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">current_user</span>
+</code></pre></div>
+
+<h3 id="56">5.6 密码加密<a class="headerlink" href="#56" title="Permanent link">&para;</a></h3>
+<p>使用 bcrypt 进行密码哈希。</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">passlib.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">CryptContext</span>
+
+<span class="n">pwd_context</span> <span class="o">=</span> <span class="n">CryptContext</span><span class="p">(</span><span class="n">schemes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;bcrypt&quot;</span><span class="p">],</span> <span class="n">deprecated</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_password_hash</span><span class="p">(</span><span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取密码哈希&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">pwd_context</span><span class="o">.</span><span class="n">hash</span><span class="p">(</span><span class="n">password</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">verify_password</span><span class="p">(</span><span class="n">plain_password</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hashed_password</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;验证密码&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">pwd_context</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">plain_password</span><span class="p">,</span> <span class="n">hashed_password</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="57">5.7 登录流程<a class="headerlink" href="#57" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/login&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">login</span><span class="p">(</span>
+    <span class="n">user_data</span><span class="p">:</span> <span class="n">UserLogin</span><span class="p">,</span>
+    <span class="n">database</span><span class="p">:</span> <span class="n">Session</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_database</span><span class="p">),</span>
+<span class="p">):</span>
+    <span class="c1"># 验证用户</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">authenticate_user</span><span class="p">(</span><span class="n">database</span><span class="p">,</span> <span class="n">user_data</span><span class="o">.</span><span class="n">account</span><span class="p">,</span> <span class="n">user_data</span><span class="o">.</span><span class="n">password</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;用户名或密码错误&quot;</span><span class="p">)</span>
+
+    <span class="c1"># 创建令牌</span>
+    <span class="n">tokens</span> <span class="o">=</span> <span class="n">create_tokens</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">tokens</span>
+</code></pre></div>
+
+<h3 id="58">5.8 刷新令牌流程<a class="headerlink" href="#58" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/refresh&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">refresh_token</span><span class="p">(</span>
+    <span class="n">token_data</span><span class="p">:</span> <span class="n">TokenRefresh</span><span class="p">,</span>
+    <span class="n">database</span><span class="p">:</span> <span class="n">Session</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_database</span><span class="p">),</span>
+<span class="p">):</span>
+    <span class="c1"># 验证刷新令牌</span>
+    <span class="n">token_data_obj</span> <span class="o">=</span> <span class="n">verify_token</span><span class="p">(</span><span class="n">token_data</span><span class="o">.</span><span class="n">refresh_token</span><span class="p">)</span>
+
+    <span class="c1"># 检查令牌类型</span>
+    <span class="n">payload</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span>
+        <span class="n">token_data</span><span class="o">.</span><span class="n">refresh_token</span><span class="p">,</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">secret_key</span><span class="p">,</span>
+        <span class="n">algorithms</span><span class="o">=</span><span class="p">[</span><span class="n">settings</span><span class="o">.</span><span class="n">algorithm</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;refresh&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;需要刷新令牌&quot;</span><span class="p">)</span>
+
+    <span class="c1"># 获取用户</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">database</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">token_data_obj</span><span class="o">.</span><span class="n">user_id</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+    <span class="c1"># 生成新的访问令牌</span>
+    <span class="n">new_tokens</span> <span class="o">=</span> <span class="n">create_access_token_only</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">new_tokens</span>
+</code></pre></div>
+
+<h3 id="59">5.9 登出流程<a class="headerlink" href="#59" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/logout&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">logout</span><span class="p">(</span>
+    <span class="n">current_user</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">),</span>
+    <span class="n">credentials</span><span class="p">:</span> <span class="n">HTTPAuthorizationCredentials</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">security</span><span class="p">),</span>
+<span class="p">):</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">credentials</span><span class="o">.</span><span class="n">credentials</span>
+
+    <span class="c1"># 将当前令牌加入黑名单</span>
+    <span class="n">logout_user</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+
+    <span class="c1"># 撤销用户所有令牌（可选）</span>
+    <span class="n">logout_user_all_tokens</span><span class="p">(</span><span class="n">current_user</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;登出成功&quot;</span><span class="p">}</span>
+</code></pre></div>
+
+<h3 id="510">5.10 学习要点<a class="headerlink" href="#510" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>密钥管理</strong>: 使用强密钥，不要在代码中硬编码</li>
+<li><strong>令牌过期</strong>: 设置合理的过期时间，平衡安全性和用户体验</li>
+<li><strong>令牌撤销</strong>: 实现令牌黑名单或用户级别撤销</li>
+<li><strong>密码安全</strong>: 使用 bcrypt 等安全哈希算法</li>
+<li><strong>HTTPS</strong>: 生产环境必须使用 HTTPS 传输令牌</li>
+</ol>
+<hr />
+<h2 id="6">6. 项目架构设计模式<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
+<h3 id="61">6.1 分层架构<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
+<p>项目采用清晰的分层架构：</p>
+<div class="highlight"><pre><span></span><code>┌─────────────────────────────────┐
+│   API 层 (endpoints/)           │  ← 处理 HTTP 请求/响应
+├─────────────────────────────────┤
+│   服务层 (services/)            │  ← 业务逻辑
+├─────────────────────────────────┤
+│   数据访问层 (models/)          │  ← 数据库操作
+└─────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="62-api-endpoints">6.2 API 层（endpoints/）<a class="headerlink" href="#62-api-endpoints" title="Permanent link">&para;</a></h3>
+<p>负责处理 HTTP 请求，调用服务层。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/api/v1/endpoints/users.py</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/me&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_current_user_info</span><span class="p">(</span>
+    <span class="n">current_user</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_active_user</span><span class="p">),</span>
+<span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">current_user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="n">current_user</span><span class="o">.</span><span class="n">username</span><span class="p">,</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="n">current_user</span><span class="o">.</span><span class="n">email</span><span class="p">,</span>
+    <span class="p">}</span>
+</code></pre></div>
+
+<h3 id="63-services">6.3 服务层（services/）<a class="headerlink" href="#63-services" title="Permanent link">&para;</a></h3>
+<p>包含业务逻辑，可被多个端点复用。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/services/user_service.py</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UserService</span><span class="p">:</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_user_by_username</span><span class="p">(</span><span class="n">database</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">User</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">database</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">username</span> <span class="o">==</span> <span class="n">username</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_user</span><span class="p">(</span><span class="n">database</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span> <span class="n">user_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">User</span><span class="p">:</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span><span class="o">**</span><span class="n">user_data</span><span class="p">)</span>
+        <span class="n">database</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+        <span class="n">database</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">database</span><span class="o">.</span><span class="n">refresh</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">user</span>
+</code></pre></div>
+
+<h3 id="64-models">6.4 数据模型层（models/）<a class="headerlink" href="#64-models" title="Permanent link">&para;</a></h3>
+<p>定义数据库表结构。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/models/user.py</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">User</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;users&quot;</span>
+    <span class="c1"># ... 字段定义</span>
+</code></pre></div>
+
+<h3 id="65-schemas">6.5 数据验证层（schemas/）<a class="headerlink" href="#65-schemas" title="Permanent link">&para;</a></h3>
+<p>使用 Pydantic 定义请求/响应数据结构。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/schemas/user.py</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UserRegister</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">username</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">email</span><span class="p">:</span> <span class="n">EmailStr</span>
+    <span class="n">password</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+
+<h3 id="66">6.6 依赖注入模式<a class="headerlink" href="#66" title="Permanent link">&para;</a></h3>
+<p>大量使用依赖注入，提高代码可测试性。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 数据库依赖</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_database</span><span class="p">():</span>
+    <span class="n">db</span> <span class="o">=</span> <span class="n">SessionLocal</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">db</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="c1"># 认证依赖</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_current_user</span><span class="p">(</span>
+    <span class="n">credentials</span><span class="p">:</span> <span class="n">HTTPAuthorizationCredentials</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">security</span><span class="p">),</span>
+    <span class="n">database</span><span class="p">:</span> <span class="n">Session</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_database</span><span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">User</span><span class="p">:</span>
+    <span class="c1"># ...</span>
+</code></pre></div>
+
+<h3 id="67">6.7 配置管理<a class="headerlink" href="#67" title="Permanent link">&para;</a></h3>
+<p>集中管理配置，从环境变量读取。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/core/config.py</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Settings</span><span class="p">:</span>
+    <span class="n">database_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DATABASE_URL&quot;</span><span class="p">)</span>
+    <span class="n">secret_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SECRET_KEY&quot;</span><span class="p">)</span>
+    <span class="c1"># ...</span>
+
+<span class="n">settings</span> <span class="o">=</span> <span class="n">Settings</span><span class="p">()</span>
+</code></pre></div>
+
+<h3 id="68">6.8 错误处理<a class="headerlink" href="#68" title="Permanent link">&para;</a></h3>
+<p>统一的错误处理机制。</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPException</span><span class="p">,</span> <span class="n">status</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="c1"># 业务逻辑</span>
+<span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span>
+        <span class="n">status_code</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span>
+        <span class="n">detail</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="p">)</span>
+</code></pre></div>
+
+<h3 id="69">6.9 日志系统<a class="headerlink" href="#69" title="Permanent link">&para;</a></h3>
+<p>使用 loguru 进行日志记录。</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+
+<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;用户登录成功&quot;</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;错误信息: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;调试信息: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="610">6.10 学习要点<a class="headerlink" href="#610" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>单一职责</strong>: 每个模块只负责一个功能</li>
+<li><strong>依赖注入</strong>: 使用依赖注入提高可测试性</li>
+<li><strong>分层清晰</strong>: 保持层次清晰，避免跨层调用</li>
+<li><strong>配置集中</strong>: 集中管理配置，便于维护</li>
+<li><strong>错误处理</strong>: 统一错误处理，提供友好错误信息</li>
+</ol>
+<hr />
+<h2 id="7">7. 云服务集成<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
+<h3 id="71">7.1 阿里云短信服务<a class="headerlink" href="#71" title="Permanent link">&para;</a></h3>
+<p>用于发送短信验证码。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/core/sms.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">alibabacloud_dysmsapi20170525.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span> <span class="k">as</span> <span class="n">DysmsapiClient</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">send_message_code</span><span class="p">(</span><span class="n">mobile</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;发送短信验证码&quot;&quot;&quot;</span>
+    <span class="c1"># 初始化客户端</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">open_api_models</span><span class="o">.</span><span class="n">Config</span><span class="p">(</span>
+        <span class="n">access_key_id</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">ali_access_key_id</span><span class="p">,</span>
+        <span class="n">access_key_secret</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">ali_access_key_secret</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">DysmsapiClient</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="c1"># 生成验证码</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">100000</span><span class="p">,</span> <span class="mi">999999</span><span class="p">))</span>
+
+    <span class="c1"># 发送短信</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="n">dysmsapi_20170525_models</span><span class="o">.</span><span class="n">SendSmsRequest</span><span class="p">(</span>
+        <span class="n">phone_numbers</span><span class="o">=</span><span class="n">mobile</span><span class="p">,</span>
+        <span class="n">template_code</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">aliyun_sms_template_code</span><span class="p">,</span>
+        <span class="n">template_param</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="n">code</span><span class="p">}),</span>
+        <span class="n">sign_name</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">aliyun_sms_sign_name</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">send_sms_with_options</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">runtime</span><span class="p">)</span>
+
+    <span class="c1"># 存储验证码到 Redis（5分钟过期）</span>
+    <span class="n">redis_client</span><span class="o">.</span><span class="n">setex</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;sms_verification:</span><span class="si">{</span><span class="n">mobile</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="n">code</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="kc">True</span>
+</code></pre></div>
+
+<h3 id="72">7.2 阿里云邮件服务<a class="headerlink" href="#72" title="Permanent link">&para;</a></h3>
+<p>用于发送验证邮件。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/core/alimail.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">alibabacloud_dm20151123.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span> <span class="k">as</span> <span class="n">DmClient</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">send_verification_email</span><span class="p">(</span><span class="n">email</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">verification_link</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;发送验证邮件&quot;&quot;&quot;</span>
+    <span class="c1"># 初始化客户端</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">open_api_models</span><span class="o">.</span><span class="n">Config</span><span class="p">(</span>
+        <span class="n">access_key_id</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">ali_access_key_id</span><span class="p">,</span>
+        <span class="n">access_key_secret</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">ali_access_key_secret</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">DmClient</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="c1"># 构建邮件内容</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="n">dm_20151123_models</span><span class="o">.</span><span class="n">SingleSendMailRequest</span><span class="p">(</span>
+        <span class="n">account_name</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">ali_mail_account_name</span><span class="p">,</span>
+        <span class="n">to_address</span><span class="o">=</span><span class="n">email</span><span class="p">,</span>
+        <span class="n">subject</span><span class="o">=</span><span class="s2">&quot;邮箱验证&quot;</span><span class="p">,</span>
+        <span class="n">html_body</span><span class="o">=</span><span class="n">render_template</span><span class="p">(</span><span class="s2">&quot;verification.html&quot;</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">verification_link</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">client</span><span class="o">.</span><span class="n">single_send_mail_with_options</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">runtime</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="73">7.3 腾讯云验证码<a class="headerlink" href="#73" title="Permanent link">&para;</a></h3>
+<p>用于验证用户提交的验证码。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># app/core/tencent_captcha.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tencentcloud.common.credential</span><span class="w"> </span><span class="kn">import</span> <span class="n">Credential</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tencentcloud.captcha.v20190722</span><span class="w"> </span><span class="kn">import</span> <span class="n">captcha_client</span><span class="p">,</span> <span class="n">models</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">verify_tencent_captcha</span><span class="p">(</span><span class="n">ticket</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">randstr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">user_ip</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;验证腾讯验证码&quot;&quot;&quot;</span>
+    <span class="n">cred</span> <span class="o">=</span> <span class="n">Credential</span><span class="p">(</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">tencent_secret_id</span><span class="p">,</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">tencent_secret_key</span>
+    <span class="p">)</span>
+
+    <span class="n">client</span> <span class="o">=</span> <span class="n">captcha_client</span><span class="o">.</span><span class="n">CaptchaClient</span><span class="p">(</span><span class="n">cred</span><span class="p">,</span> <span class="s2">&quot;ap-shanghai&quot;</span><span class="p">)</span>
+
+    <span class="n">req</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DescribeCaptchaResultRequest</span><span class="p">()</span>
+    <span class="n">req</span><span class="o">.</span><span class="n">CaptchaType</span> <span class="o">=</span> <span class="mi">9</span>
+    <span class="n">req</span><span class="o">.</span><span class="n">Ticket</span> <span class="o">=</span> <span class="n">ticket</span>
+    <span class="n">req</span><span class="o">.</span><span class="n">UserIp</span> <span class="o">=</span> <span class="n">user_ip</span>
+    <span class="n">req</span><span class="o">.</span><span class="n">CaptchaAppId</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">tencent_captcha_appid</span><span class="p">)</span>
+    <span class="n">req</span><span class="o">.</span><span class="n">AppSecretKey</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">tencent_app_secretkey</span>
+
+    <span class="n">resp</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">DescribeCaptchaResult</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">resp</span><span class="o">.</span><span class="n">CaptchaCode</span> <span class="o">==</span> <span class="mi">1</span>
+</code></pre></div>
+
+<h3 id="74">7.4 学习要点<a class="headerlink" href="#74" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>密钥管理</strong>: 使用环境变量存储密钥，不要硬编码</li>
+<li><strong>错误处理</strong>: 处理服务调用失败的情况</li>
+<li><strong>限流</strong>: 实现发送频率限制，防止滥用</li>
+<li><strong>成本控制</strong>: 监控服务使用量，控制成本</li>
+<li><strong>降级策略</strong>: 服务不可用时提供降级方案</li>
+</ol>
+<hr />
+<h2 id="8">8. 测试与部署<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
+<h3 id="81">8.1 测试框架<a class="headerlink" href="#81" title="Permanent link">&para;</a></h3>
+<p>使用 pytest 进行测试。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/conftest.py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi.testclient</span><span class="w"> </span><span class="kn">import</span> <span class="n">TestClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.core.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">SessionLocal</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">client</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">main</span><span class="w"> </span><span class="kn">import</span> <span class="n">app</span>
+    <span class="k">return</span> <span class="n">TestClient</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">database</span><span class="p">():</span>
+    <span class="n">db</span> <span class="o">=</span> <span class="n">SessionLocal</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">db</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div>
+
+<h3 id="82">8.2 单元测试示例<a class="headerlink" href="#82" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/api/v1/endpoints/test_auth.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_register_user</span><span class="p">(</span><span class="n">client</span><span class="p">):</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+        <span class="s2">&quot;/api/v1/auth/register&quot;</span><span class="p">,</span>
+        <span class="n">json</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;testuser&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;test@example.com&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="s2">&quot;password123&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sms_code&quot;</span><span class="p">:</span> <span class="s2">&quot;123456&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span>
+    <span class="k">assert</span> <span class="s2">&quot;access_token&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+</code></pre></div>
+
+<h3 id="83-docker">8.3 Docker 部署<a class="headerlink" href="#83-docker" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c"># Dockerfile</span>
+<span class="k">FROM</span><span class="w"> </span><span class="s">python:3.11-slim</span>
+
+<span class="k">WORKDIR</span><span class="w"> </span><span class="s">/app</span>
+
+<span class="c"># 安装依赖</span>
+<span class="k">COPY</span><span class="w"> </span>requirements.txt<span class="w"> </span>.
+<span class="k">RUN</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-cache-dir<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+
+<span class="c"># 复制代码</span>
+<span class="k">COPY</span><span class="w"> </span>.<span class="w"> </span>.
+
+<span class="c"># 暴露端口</span>
+<span class="k">EXPOSE</span><span class="w"> </span><span class="s">8000</span>
+
+<span class="c"># 启动命令</span>
+<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;uvicorn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;main:app&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;0.0.0.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--port&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;8000&quot;</span><span class="p">]</span>
+</code></pre></div>
+
+<h3 id="84">8.4 环境配置<a class="headerlink" href="#84" title="Permanent link">&para;</a></h3>
+<p>使用环境变量管理配置。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># .env 文件</span>
+<span class="nv">DATABASE_URL</span><span class="o">=</span>postgresql://user:pass@localhost/db
+<span class="nv">SECRET_KEY</span><span class="o">=</span>your-secret-key
+<span class="nv">REDIS_URL</span><span class="o">=</span>redis://localhost:6379/0
+</code></pre></div>
+
+<h3 id="85">8.5 部署流程<a class="headerlink" href="#85" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>构建镜像</strong><br />
+<code>bash
+   docker build -t web-api .</code></p>
+</li>
+<li>
+<p><strong>运行容器</strong><br />
+<code>bash
+   docker run -d \
+     -p 8000:8000 \
+     --env-file .env \
+     web-api</code></p>
+</li>
+<li>
+<p><strong>数据库迁移</strong><br />
+<code>bash
+   docker exec -it container_name alembic upgrade head</code></p>
+</li>
+</ol>
+<h3 id="86">8.6 学习要点<a class="headerlink" href="#86" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>测试覆盖</strong>: 编写充分的测试，覆盖主要功能</li>
+<li><strong>CI/CD</strong>: 配置自动化测试和部署流程</li>
+<li><strong>监控</strong>: 部署监控系统，及时发现问题</li>
+<li><strong>日志</strong>: 配置日志收集和分析</li>
+<li><strong>备份</strong>: 定期备份数据库和重要数据</li>
+</ol>
+<hr />
+<h2 id="9">9. 最佳实践总结<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
+<h3 id="91">9.1 代码组织<a class="headerlink" href="#91" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ 使用清晰的分层架构</li>
+<li>✅ 保持模块职责单一</li>
+<li>✅ 使用类型提示提高代码可读性</li>
+<li>✅ 编写清晰的文档字符串</li>
+</ul>
+<h3 id="92">9.2 安全实践<a class="headerlink" href="#92" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ 使用 HTTPS 传输敏感数据</li>
+<li>✅ 密码使用 bcrypt 加密</li>
+<li>✅ 实现令牌黑名单机制</li>
+<li>✅ 验证所有用户输入</li>
+<li>✅ 设置合理的令牌过期时间</li>
+</ul>
+<h3 id="93">9.3 性能优化<a class="headerlink" href="#93" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ 使用数据库连接池</li>
+<li>✅ 使用 Redis 缓存热点数据</li>
+<li>✅ 异步处理耗时任务</li>
+<li>✅ 合理使用数据库索引</li>
+</ul>
+<h3 id="94">9.4 错误处理<a class="headerlink" href="#94" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ 统一错误处理机制</li>
+<li>✅ 记录详细的错误日志</li>
+<li>✅ 返回友好的错误信息</li>
+<li>✅ 实现故障降级策略</li>
+</ul>
+<h3 id="95">9.5 可维护性<a class="headerlink" href="#95" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ 使用配置文件管理设置</li>
+<li>✅ 使用依赖注入提高可测试性</li>
+<li>✅ 编写清晰的注释和文档</li>
+<li>✅ 遵循代码规范（flake8）</li>
+</ul>
+<hr />
+<h2 id="_25">📖 学习资源推荐<a class="headerlink" href="#_25" title="Permanent link">&para;</a></h2>
+<h3 id="_26">官方文档<a class="headerlink" href="#_26" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://fastapi.tiangolo.com/">FastAPI 文档</a></li>
+<li><a href="https://docs.sqlalchemy.org/">SQLAlchemy 文档</a></li>
+<li><a href="https://docs.celeryproject.org/">Celery 文档</a></li>
+<li><a href="https://redis.io/documentation">Redis 文档</a></li>
+<li><a href="https://alembic.sqlalchemy.org/">Alembic 文档</a></li>
+</ul>
+<h3 id="_27">相关技术<a class="headerlink" href="#_27" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://docs.pydantic.dev/">Pydantic 文档</a></li>
+<li><a href="https://jwt.io/">JWT 官方文档</a></li>
+<li><a href="https://docs.docker.com/">Docker 文档</a></li>
+<li><a href="https://docs.pytest.org/">pytest 文档</a></li>
+</ul>
+<hr />
+<h2 id="_28">🔧 实践练习<a class="headerlink" href="#_28" title="Permanent link">&para;</a></h2>
+<h3 id="1-api">练习 1: 创建新的 API 端点<a class="headerlink" href="#1-api" title="Permanent link">&para;</a></h3>
+<p>创建一个新的端点，实现用户资料更新功能。</p>
+<h3 id="2">练习 2: 实现缓存机制<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
+<p>为热点数据添加 Redis 缓存。</p>
+<h3 id="3-celery">练习 3: 添加新的 Celery 任务<a class="headerlink" href="#3-celery" title="Permanent link">&para;</a></h3>
+<p>创建一个新的异步任务，实现数据导出功能。</p>
+<h3 id="4">练习 4: 编写单元测试<a class="headerlink" href="#4" title="Permanent link">&para;</a></h3>
+<p>为关键功能编写单元测试。</p>
+<hr />
+<h2 id="_29">📝 总结<a class="headerlink" href="#_29" title="Permanent link">&para;</a></h2>
+<p>这份学习笔记涵盖了 Data Station Web API 项目中使用的核心技术：</p>
+<ol>
+<li><strong>FastAPI</strong>: 现代化的异步 Web 框架</li>
+<li><strong>SQLAlchemy</strong>: 强大的 ORM 框架</li>
+<li><strong>Redis</strong>: 高性能缓存和消息队列</li>
+<li><strong>Celery</strong>: 分布式任务队列</li>
+<li><strong>JWT</strong>: 安全的认证机制</li>
+<li><strong>云服务</strong>: 短信、邮件、验证码集成</li>
+</ol>
+<p>通过学习和实践这些技术，你将能够构建企业级的 Web API 应用。</p>
+<hr />
+<p><strong>最后更新</strong>: 2025年1月<br />
+<strong>作者</strong>: 基于 Data Station Web API 项目整理</p>
+    </div>
+</body>
+</html>
