@@ -440,7 +440,7 @@ def convert_markdown_to_html(md_file: str, html_file: str):
                         if (!target) {{
                             try {{
                                 // 转义特殊字符用于 CSS 选择器
-                                const escapedId = targetId.replace(/([!"#$%&'()*+,./:;<=>?@[\\\]^`{{|}}~])/g, '\\\\$1');
+                                const escapedId = targetId.replace(/([!"#$%&'()*+,./:;<=>?@[\\\\\\]^`{{|}}~])/g, '\\\\$1');
                                 target = document.querySelector('#' + escapedId);
                             }} catch (err) {{
                                 console.warn('Failed to query selector for:', href, err);
