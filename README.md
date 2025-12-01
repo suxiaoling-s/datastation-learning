@@ -23,6 +23,11 @@
 
 ## 🌐 在线查看
 
+### GitHub Pages（推荐）
+- 🚀 **在线访问**: https://suxiaoling-s.github.io/datastation-learning/
+- 📖 **完整笔记**: https://suxiaoling-s.github.io/datastation-learning/学习笔记.html
+
+### GitHub 仓库
 - [Markdown 版本](学习笔记.md) - GitHub 会自动渲染 Markdown
 - [HTML 版本](学习笔记.html) - 可直接下载并在浏览器中打开
 
