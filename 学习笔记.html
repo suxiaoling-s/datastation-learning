@@ -11,6 +11,10 @@
             box-sizing: border-box;
         }
         
+        html {
+            scroll-behavior: smooth;
+        }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             line-height: 1.6;
@@ -33,6 +37,7 @@
             border-bottom: 3px solid #3498db;
             padding-bottom: 10px;
             margin-bottom: 30px;
+            scroll-margin-top: 20px;
         }
         
         h2 {
@@ -41,18 +46,21 @@
             margin-bottom: 20px;
             padding-bottom: 10px;
             border-bottom: 2px solid #ecf0f1;
+            scroll-margin-top: 20px;
         }
         
         h3 {
             color: #555;
             margin-top: 30px;
             margin-bottom: 15px;
+            scroll-margin-top: 20px;
         }
         
         h4, h5, h6 {
             color: #666;
             margin-top: 20px;
             margin-bottom: 10px;
+            scroll-margin-top: 20px;
         }
         
         p {
@@ -124,10 +132,16 @@
         a {
             color: #3498db;
             text-decoration: none;
+            transition: color 0.2s;
         }
         
         a:hover {
+            color: #2980b9;
             text-decoration: underline;
+        }
+        
+        a:visited {
+            color: #8e44ad;
         }
         
         hr {
@@ -138,9 +152,17 @@
         
         .toc {
             background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 5px;
-            margin-bottom: 30px;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .toc h2 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: none;
         }
         
         .toc ul {
@@ -149,7 +171,41 @@
         }
         
         .toc li {
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            line-height: 1.8;
+        }
+        
+        .toc a {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        
+        .toc a:hover {
+            color: #3498db;
+            text-decoration: underline;
+        }
+        
+        .toc ul ul {
+            margin-left: 20px;
+            margin-top: 5px;
+        }
+        
+        .toc ul ul ul {
+            margin-left: 20px;
+        }
+        
+        /* 标题锚点样式 */
+        h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
+            position: relative;
+        }
+        
+        h1[id]:hover::before, h2[id]:hover::before, h3[id]:hover::before,
+        h4[id]:hover::before, h5[id]:hover::before, h6[id]:hover::before {
+            content: "🔗";
+            position: absolute;
+            left: -30px;
+            font-size: 0.8em;
+            opacity: 0.5;
         }
         
         @media (max-width: 768px) {
@@ -160,35 +216,63 @@
             body {
                 padding: 10px;
             }
+            
+            .toc {
+                padding: 15px;
+            }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script>hljs.highlightAll();</script>
+    <script>
+        hljs.highlightAll();
+        
+        // 平滑滚动增强
+        document.addEventListener('DOMContentLoaded', function() {
+            // 为所有锚点链接添加平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    const href = this.getAttribute('href');
+                    if (href !== '#' && href.length > 1) {
+                        const target = document.querySelector(href);
+                        if (target) {
+                            e.preventDefault();
+                            const offset = 80; // 偏移量，避免被固定导航栏遮挡
+                            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                            window.scrollTo({
+                                top: targetPosition,
+                                behavior: 'smooth'
+                            });
+                        }
+                    }
+                });
+            });
+        });
+    </script>
 </head>
 <body>
     <div class="container">
-        <h1 id="data-station-web-api">Data Station Web API 技术栈学习笔记<a class="headerlink" href="#data-station-web-api" title="Permanent link">&para;</a></h1>
+        <h1 id="data-station-web-api">Data Station Web API 技术栈学习笔记</h1>
 <blockquote>
 <p>基于 FastAPI + Celery + Redis + PostgreSQL 的现代化 Web API 框架完整技术解析</p>
 </blockquote>
 <hr />
-<h2 id="_1">📚 目录<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<h2 id="bookscjk-unified-ideograph-76eecjk-unified-ideograph-5f55">📚 目录</h2>
 <ol>
-<li><a href="#项目概述">项目概述</a></li>
-<li><a href="#1-fastapi-框架">FastAPI 框架</a></li>
-<li><a href="#2-sqlalchemy-orm-与数据库设计">SQLAlchemy ORM 与数据库设计</a></li>
-<li><a href="#3-redis-缓存与连接池管理">Redis 缓存与连接池管理</a></li>
-<li><a href="#4-celery-异步任务处理">Celery 异步任务处理</a></li>
-<li><a href="#5-jwt-认证与安全机制">JWT 认证与安全机制</a></li>
-<li><a href="#6-项目架构设计模式">项目架构设计模式</a></li>
-<li><a href="#7-云服务集成">云服务集成</a></li>
-<li><a href="#8-测试与部署">测试与部署</a></li>
-<li><a href="#9-最佳实践总结">最佳实践总结</a></li>
+<li><a href="#cjk-unified-ideograph-9879cjk-unified-ideograph-76eecjk-unified-ideograph-6982cjk-unified-ideograph-8ff0">项目概述</a></li>
+<li><a href="#fastapi">FastAPI 框架</a></li>
+<li><a href="#sqlalchemy-orm">SQLAlchemy ORM 与数据库设计</a></li>
+<li><a href="#redis">Redis 缓存与连接池管理</a></li>
+<li><a href="#celery">Celery 异步任务处理</a></li>
+<li><a href="#jwt">JWT 认证与安全机制</a></li>
+<li><a href="#cjk-unified-ideograph-9879cjk-unified-ideograph-76eecjk-unified-ideograph-67b6cjk-unified-ideograph-6784cjk-unified-ideograph-8bbecjk-unified-ideograph-8ba1cjk-unified-ideograph-6a21cjk-unified-ideograph-5f0f">项目架构设计模式</a></li>
+<li><a href="#cjk-unified-ideograph-4e91cjk-unified-ideograph-670dcjk-unified-ideograph-52a1cjk-unified-ideograph-96c6cjk-unified-ideograph-6210">云服务集成</a></li>
+<li><a href="#cjk-unified-ideograph-6d4bcjk-unified-ideograph-8bd5cjk-unified-ideograph-4e0ecjk-unified-ideograph-90e8cjk-unified-ideograph-7f72">测试与部署</a></li>
+<li><a href="#cjk-unified-ideograph-6700cjk-unified-ideograph-4f73cjk-unified-ideograph-5b9ecjk-unified-ideograph-8df5cjk-unified-ideograph-603bcjk-unified-ideograph-7ed3">最佳实践总结</a></li>
 </ol>
 <hr />
-<h2 id="_2">项目概述<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
-<h3 id="_3">技术栈总览<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<h2 id="cjk-unified-ideograph-9879cjk-unified-ideograph-76eecjk-unified-ideograph-6982cjk-unified-ideograph-8ff0">项目概述</h2>
+<h3 id="cjk-unified-ideograph-6280cjk-unified-ideograph-672fcjk-unified-ideograph-6808cjk-unified-ideograph-603bcjk-unified-ideograph-89c8">技术栈总览</h3>
 <p>这是一个基于 <strong>FastAPI</strong> 构建的现代化 Web API 框架，采用了完整的企业级技术栈：</p>
 <ul>
 <li><strong>Web 框架</strong>: FastAPI (异步、高性能)</li>
@@ -204,7 +288,7 @@
 <li><strong>容器化</strong>: Docker</li>
 <li><strong>测试框架</strong>: pytest</li>
 </ul>
-<h3 id="_4">项目结构<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<h3 id="cjk-unified-ideograph-9879cjk-unified-ideograph-76eecjk-unified-ideograph-7ed3cjk-unified-ideograph-6784">项目结构</h3>
 <div class="highlight"><pre><span></span><code>web-api/
 ├── app/                    # 主应用代码
 │   ├── api/v1/endpoints/  # API 端点
@@ -220,17 +304,17 @@
 </code></pre></div>
 
 <hr />
-<h2 id="1-fastapi">1. FastAPI 框架<a class="headerlink" href="#1-fastapi" title="Permanent link">&para;</a></h2>
-<h3 id="11-fastapi">1.1 FastAPI 核心概念<a class="headerlink" href="#11-fastapi" title="Permanent link">&para;</a></h3>
+<h2 id="1-fastapi">1. FastAPI 框架</h2>
+<h3 id="11-fastapi">1.1 FastAPI 核心概念</h3>
 <p>FastAPI 是一个现代、快速（高性能）的 Web 框架，用于构建基于标准 Python 类型提示的 API。</p>
-<h4 id="_5">关键特性<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h4>
+<h4 id="cjk-unified-ideograph-5173cjk-unified-ideograph-952ecjk-unified-ideograph-7279cjk-unified-ideograph-6027">关键特性</h4>
 <ul>
 <li><strong>高性能</strong>: 基于 Starlette 和 Pydantic，性能与 NodeJS 和 Go 相当</li>
 <li><strong>易用性</strong>: 自动生成 API 文档（Swagger/OpenAPI）</li>
 <li><strong>类型安全</strong>: 基于 Python 3.6+ 的类型提示</li>
 <li><strong>异步支持</strong>: 原生支持 async/await</li>
 </ul>
-<h4 id="_6">项目中的应用<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h4>
+<h4 id="cjk-unified-ideograph-9879cjk-unified-ideograph-76eecjk-unified-ideograph-4e2dcjk-unified-ideograph-7684cjk-unified-ideograph-5e94cjk-unified-ideograph-7528">项目中的应用</h4>
 <div class="highlight"><pre><span></span><code><span class="c1"># main.py - FastAPI 应用初始化</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastapi.middleware.cors</span><span class="w"> </span><span class="kn">import</span> <span class="n">CORSMiddleware</span>
@@ -250,9 +334,9 @@
 <span class="n">app</span><span class="o">.</span><span class="n">include_router</span><span class="p">(</span><span class="n">api_router</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;/api/v1&quot;</span><span class="p">)</span>
 </code></pre></div>
 
-<h3 id="12">1.2 路由系统<a class="headerlink" href="#12" title="Permanent link">&para;</a></h3>
+<h3 id="12">1.2 路由系统</h3>
 <p>FastAPI 使用装饰器定义路由，支持异步和同步处理函数。</p>
-<h4 id="_7">路由定义示例<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h4>
+<h4 id="cjk-unified-ideograph-8defcjk-unified-ideograph-7531cjk-unified-ideograph-5b9acjk-unified-ideograph-4e49cjk-unified-ideograph-793acjk-unified-ideograph-4f8b">路由定义示例</h4>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/api/v1/endpoints/auth.py</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">APIRouter</span><span class="p">,</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">HTTPException</span>
 
@@ -267,7 +351,7 @@
     <span class="k">pass</span>
 </code></pre></div>
 
-<h4 id="_8">依赖注入系统<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h4>
+<h4 id="cjk-unified-ideograph-4f9dcjk-unified-ideograph-8d56cjk-unified-ideograph-6ce8cjk-unified-ideograph-5165cjk-unified-ideograph-7cfbcjk-unified-ideograph-7edf">依赖注入系统</h4>
 <p>FastAPI 的依赖注入是其核心特性之一，用于：<br />
 - 数据库会话管理<br />
 - 用户认证<br />
@@ -291,7 +375,7 @@
     <span class="k">return</span> <span class="n">user</span>
 </code></pre></div>
 
-<h3 id="13">1.3 请求/响应模型<a class="headerlink" href="#13" title="Permanent link">&para;</a></h3>
+<h3 id="13">1.3 请求/响应模型</h3>
 <p>使用 Pydantic 模型定义请求和响应的数据结构，自动进行验证和序列化。</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/schemas/user.py</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">EmailStr</span>
@@ -313,7 +397,7 @@
         <span class="n">from_attributes</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># 支持从 ORM 模型转换</span>
 </code></pre></div>
 
-<h3 id="14">1.4 异常处理<a class="headerlink" href="#14" title="Permanent link">&para;</a></h3>
+<h3 id="14">1.4 异常处理</h3>
 <p>FastAPI 使用标准的 HTTPException 处理错误。</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPException</span><span class="p">,</span> <span class="n">status</span>
 
@@ -324,11 +408,11 @@
     <span class="p">)</span>
 </code></pre></div>
 
-<h3 id="15-api">1.5 自动 API 文档<a class="headerlink" href="#15-api" title="Permanent link">&para;</a></h3>
+<h3 id="15-api">1.5 自动 API 文档</h3>
 <p>FastAPI 自动生成交互式 API 文档：<br />
 - Swagger UI: <code>http://localhost:8000/docs</code><br />
 - ReDoc: <code>http://localhost:8000/redoc</code></p>
-<h3 id="16">1.6 学习要点<a class="headerlink" href="#16" title="Permanent link">&para;</a></h3>
+<h3 id="16">1.6 学习要点</h3>
 <ol>
 <li><strong>异步编程</strong>: 使用 <code>async def</code> 定义异步端点，使用 <code>await</code> 调用异步操作</li>
 <li><strong>类型提示</strong>: 充分利用类型提示，提高代码可读性和 IDE 支持</li>
@@ -336,10 +420,10 @@
 <li><strong>Pydantic 模型</strong>: 使用 Pydantic 进行数据验证，确保数据安全</li>
 </ol>
 <hr />
-<h2 id="2-sqlalchemy-orm">2. SQLAlchemy ORM 与数据库设计<a class="headerlink" href="#2-sqlalchemy-orm" title="Permanent link">&para;</a></h2>
-<h3 id="21-sqlalchemy">2.1 SQLAlchemy 核心概念<a class="headerlink" href="#21-sqlalchemy" title="Permanent link">&para;</a></h3>
+<h2 id="2-sqlalchemy-orm">2. SQLAlchemy ORM 与数据库设计</h2>
+<h3 id="21-sqlalchemy">2.1 SQLAlchemy 核心概念</h3>
 <p>SQLAlchemy 是 Python 最流行的 ORM（对象关系映射）框架，提供了 SQL 工具包和 ORM。</p>
-<h4 id="_9">项目中的数据库配置<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h4>
+<h4 id="cjk-unified-ideograph-9879cjk-unified-ideograph-76eecjk-unified-ideograph-4e2dcjk-unified-ideograph-7684cjk-unified-ideograph-6570cjk-unified-ideograph-636ecjk-unified-ideograph-5e93cjk-unified-ideograph-914dcjk-unified-ideograph-7f6e">项目中的数据库配置</h4>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/core/database.py</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_engine</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.orm</span><span class="w"> </span><span class="kn">import</span> <span class="n">sessionmaker</span>
@@ -359,9 +443,9 @@
 <span class="n">Base</span> <span class="o">=</span> <span class="n">declarative_base</span><span class="p">()</span>
 </code></pre></div>
 
-<h3 id="22">2.2 数据模型定义<a class="headerlink" href="#22" title="Permanent link">&para;</a></h3>
+<h3 id="22">2.2 数据模型定义</h3>
 <p>使用 SQLAlchemy 的声明式语法定义数据模型。</p>
-<h4 id="_10">用户模型示例<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h4>
+<h4 id="cjk-unified-ideograph-7528cjk-unified-ideograph-6237cjk-unified-ideograph-6a21cjk-unified-ideograph-578bcjk-unified-ideograph-793acjk-unified-ideograph-4f8b">用户模型示例</h4>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/models/user.py</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">Boolean</span><span class="p">,</span> <span class="n">DateTime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.orm</span><span class="w"> </span><span class="kn">import</span> <span class="n">relationship</span>
@@ -382,7 +466,7 @@
     <span class="n">tasks</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">&quot;Task&quot;</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">&quot;user&quot;</span><span class="p">)</span>
 </code></pre></div>
 
-<h4 id="_11">关键概念<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h4>
+<h4 id="cjk-unified-ideograph-5173cjk-unified-ideograph-952ecjk-unified-ideograph-6982cjk-unified-ideograph-5ff5">关键概念</h4>
 <ol>
 <li><strong>表定义</strong>: <code>__tablename__</code> 指定数据库表名</li>
 <li><strong>列定义</strong>: 使用 <code>Column</code> 定义字段，指定类型、约束</li>
@@ -390,7 +474,7 @@
 <li><strong>关系</strong>: 使用 <code>relationship</code> 定义表间关系</li>
 <li><strong>时间戳</strong>: 使用 <code>server_default=func.now()</code> 设置默认时间</li>
 </ol>
-<h3 id="23">2.3 数据库会话管理<a class="headerlink" href="#23" title="Permanent link">&para;</a></h3>
+<h3 id="23">2.3 数据库会话管理</h3>
 <p>使用 FastAPI 的依赖注入管理数据库会话。</p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_database</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;获取数据库会话（依赖注入）&quot;&quot;&quot;</span>
@@ -409,9 +493,9 @@
     <span class="k">pass</span>
 </code></pre></div>
 
-<h3 id="24-alembic">2.4 Alembic 数据库迁移<a class="headerlink" href="#24-alembic" title="Permanent link">&para;</a></h3>
+<h3 id="24-alembic">2.4 Alembic 数据库迁移</h3>
 <p>Alembic 是 SQLAlchemy 的数据库迁移工具，用于版本控制数据库结构。</p>
-<h4 id="_12">迁移配置<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h4>
+<h4 id="cjk-unified-ideograph-8fc1cjk-unified-ideograph-79fbcjk-unified-ideograph-914dcjk-unified-ideograph-7f6e">迁移配置</h4>
 <div class="highlight"><pre><span></span><code><span class="c1"># alembic/env.py</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">app.core.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">Base</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">app.models.user</span><span class="w"> </span><span class="kn">import</span> <span class="n">User</span>
@@ -421,7 +505,7 @@
 <span class="n">target_metadata</span> <span class="o">=</span> <span class="n">Base</span><span class="o">.</span><span class="n">metadata</span>
 </code></pre></div>
 
-<h4 id="_13">常用迁移命令<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h4>
+<h4 id="cjk-unified-ideograph-5e38cjk-unified-ideograph-7528cjk-unified-ideograph-8fc1cjk-unified-ideograph-79fbcjk-unified-ideograph-547dcjk-unified-ideograph-4ee4">常用迁移命令</h4>
 <div class="highlight"><pre><span></span><code><span class="c1"># 创建迁移脚本</span>
 alembic<span class="w"> </span>revision<span class="w"> </span>--autogenerate<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;描述信息&quot;</span>
 
@@ -438,7 +522,7 @@ alembic<span class="w"> </span>current
 alembic<span class="w"> </span><span class="nb">history</span>
 </code></pre></div>
 
-<h4 id="_14">迁移文件示例<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h4>
+<h4 id="cjk-unified-ideograph-8fc1cjk-unified-ideograph-79fbcjk-unified-ideograph-6587cjk-unified-ideograph-4ef6cjk-unified-ideograph-793acjk-unified-ideograph-4f8b">迁移文件示例</h4>
 <div class="highlight"><pre><span></span><code><span class="c1"># alembic/versions/xxxxx_initial_schema.py</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">upgrade</span><span class="p">():</span>
     <span class="n">op</span><span class="o">.</span><span class="n">create_table</span><span class="p">(</span>
@@ -452,8 +536,8 @@ alembic<span class="w"> </span><span class="nb">history</span>
     <span class="n">op</span><span class="o">.</span><span class="n">drop_table</span><span class="p">(</span><span class="s1">&#39;users&#39;</span><span class="p">)</span>
 </code></pre></div>
 
-<h3 id="25">2.5 查询操作<a class="headerlink" href="#25" title="Permanent link">&para;</a></h3>
-<h4 id="_15">基本查询<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h4>
+<h3 id="25">2.5 查询操作</h3>
+<h4 id="cjk-unified-ideograph-57facjk-unified-ideograph-672ccjk-unified-ideograph-67e5cjk-unified-ideograph-8be2">基本查询</h4>
 <div class="highlight"><pre><span></span><code><span class="c1"># 查询单个</span>
 <span class="n">user</span> <span class="o">=</span> <span class="n">database</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">user_id</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
 
@@ -474,7 +558,7 @@ alembic<span class="w"> </span><span class="nb">history</span>
     <span class="o">.</span><span class="n">all</span><span class="p">()</span>
 </code></pre></div>
 
-<h4 id="_16">关联查询<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h4>
+<h4 id="cjk-unified-ideograph-5173cjk-unified-ideograph-8054cjk-unified-ideograph-67e5cjk-unified-ideograph-8be2">关联查询</h4>
 <div class="highlight"><pre><span></span><code><span class="c1"># 预加载关联数据</span>
 <span class="n">user</span> <span class="o">=</span> <span class="n">database</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span>\
     <span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">joinedload</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">tasks</span><span class="p">))</span>\
@@ -488,7 +572,7 @@ alembic<span class="w"> </span><span class="nb">history</span>
     <span class="o">.</span><span class="n">all</span><span class="p">()</span>
 </code></pre></div>
 
-<h3 id="26">2.6 事务管理<a class="headerlink" href="#26" title="Permanent link">&para;</a></h3>
+<h3 id="26">2.6 事务管理</h3>
 <div class="highlight"><pre><span></span><code><span class="k">try</span><span class="p">:</span>
     <span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="n">email</span><span class="o">=</span><span class="s2">&quot;test@example.com&quot;</span><span class="p">)</span>
     <span class="n">database</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
@@ -498,7 +582,7 @@ alembic<span class="w"> </span><span class="nb">history</span>
     <span class="k">raise</span>
 </code></pre></div>
 
-<h3 id="27">2.7 学习要点<a class="headerlink" href="#27" title="Permanent link">&para;</a></h3>
+<h3 id="27">2.7 学习要点</h3>
 <ol>
 <li><strong>模型设计</strong>: 合理设计模型结构，考虑性能和扩展性</li>
 <li><strong>索引优化</strong>: 为常用查询字段创建索引</li>
@@ -507,19 +591,19 @@ alembic<span class="w"> </span><span class="nb">history</span>
 <li><strong>连接池</strong>: 配置合适的连接池大小和回收时间</li>
 </ol>
 <hr />
-<h2 id="3-redis">3. Redis 缓存与连接池管理<a class="headerlink" href="#3-redis" title="Permanent link">&para;</a></h2>
-<h3 id="31-redis">3.1 Redis 基础<a class="headerlink" href="#31-redis" title="Permanent link">&para;</a></h3>
+<h2 id="3-redis">3. Redis 缓存与连接池管理</h2>
+<h3 id="31-redis">3.1 Redis 基础</h3>
 <p>Redis 是一个开源的内存数据结构存储，用作数据库、缓存和消息代理。</p>
-<h4 id="_17">项目中的用途<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h4>
+<h4 id="cjk-unified-ideograph-9879cjk-unified-ideograph-76eecjk-unified-ideograph-4e2dcjk-unified-ideograph-7684cjk-unified-ideograph-7528cjk-unified-ideograph-9014">项目中的用途</h4>
 <ol>
 <li><strong>缓存</strong>: 存储验证码、会话数据</li>
 <li><strong>令牌黑名单</strong>: JWT 令牌撤销</li>
 <li><strong>Celery 消息队列</strong>: 任务消息代理和结果后端</li>
 <li><strong>计数器</strong>: 限流、统计</li>
 </ol>
-<h3 id="32-redis">3.2 Redis 连接池管理<a class="headerlink" href="#32-redis" title="Permanent link">&para;</a></h3>
+<h3 id="32-redis">3.2 Redis 连接池管理</h3>
 <p>项目实现了完整的 Redis 连接池管理，支持动态配置和健康检查。</p>
-<h4 id="_18">连接池实现<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h4>
+<h4 id="cjk-unified-ideograph-8fdecjk-unified-ideograph-63a5cjk-unified-ideograph-6c60cjk-unified-ideograph-5b9ecjk-unified-ideograph-73b0">连接池实现</h4>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/core/redis_client.py</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">RedisManager</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Redis连接管理器&quot;&quot;&quot;</span>
@@ -547,7 +631,7 @@ alembic<span class="w"> </span><span class="nb">history</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">ping</span><span class="p">()</span>  <span class="c1"># 测试连接</span>
 </code></pre></div>
 
-<h4 id="_19">连接池大小优化<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h4>
+<h4 id="cjk-unified-ideograph-8fdecjk-unified-ideograph-63a5cjk-unified-ideograph-6c60cjk-unified-ideograph-5927cjk-unified-ideograph-5c0fcjk-unified-ideograph-4f18cjk-unified-ideograph-5316">连接池大小优化</h4>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_get_optimal_connections</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;根据环境获取最优连接数&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
@@ -560,8 +644,8 @@ alembic<span class="w"> </span><span class="nb">history</span>
         <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">optimal_connections</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="mi">100</span><span class="p">)</span>
 </code></pre></div>
 
-<h3 id="33-redis">3.3 Redis 操作<a class="headerlink" href="#33-redis" title="Permanent link">&para;</a></h3>
-<h4 id="_20">基本操作<a class="headerlink" href="#_20" title="Permanent link">&para;</a></h4>
+<h3 id="33-redis">3.3 Redis 操作</h3>
+<h4 id="cjk-unified-ideograph-57facjk-unified-ideograph-672ccjk-unified-ideograph-64cdcjk-unified-ideograph-4f5c">基本操作</h4>
 <div class="highlight"><pre><span></span><code><span class="c1"># 设置值（带过期时间）</span>
 <span class="n">redis_client</span><span class="o">.</span><span class="n">setex</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">)</span>  <span class="c1"># 300秒过期</span>
 
@@ -578,7 +662,7 @@ alembic<span class="w"> </span><span class="nb">history</span>
 <span class="n">redis_client</span><span class="o">.</span><span class="n">expire</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span>
 </code></pre></div>
 
-<h4 id="_21">项目中的应用场景<a class="headerlink" href="#_21" title="Permanent link">&para;</a></h4>
+<h4 id="cjk-unified-ideograph-9879cjk-unified-ideograph-76eecjk-unified-ideograph-4e2dcjk-unified-ideograph-7684cjk-unified-ideograph-5e94cjk-unified-ideograph-7528cjk-unified-ideograph-573acjk-unified-ideograph-666f">项目中的应用场景</h4>
 <ol>
 <li><strong>短信验证码存储</strong></li>
 </ol>
@@ -613,7 +697,7 @@ alembic<span class="w"> </span><span class="nb">history</span>
 <span class="n">is_logged_out</span> <span class="o">=</span> <span class="n">redis_client</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;user_logout:</span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
 </code></pre></div>
 
-<h3 id="34">3.4 连接池监控<a class="headerlink" href="#34" title="Permanent link">&para;</a></h3>
+<h3 id="34">3.4 连接池监控</h3>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_pool_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;获取连接池统计信息&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">{</span>
@@ -624,7 +708,7 @@ alembic<span class="w"> </span><span class="nb">history</span>
     <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="35">3.5 故障处理<a class="headerlink" href="#35" title="Permanent link">&para;</a></h3>
+<h3 id="35">3.5 故障处理</h3>
 <p>项目实现了 Mock Redis 客户端，当 Redis 不可用时仍可运行（功能受限）。</p>
 <div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">_MockRedisClient</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;模拟Redis客户端，当Redis不可用时使用&quot;&quot;&quot;</span>
@@ -633,7 +717,7 @@ alembic<span class="w"> </span><span class="nb">history</span>
         <span class="k">return</span> <span class="kc">True</span>
 </code></pre></div>
 
-<h3 id="36">3.6 学习要点<a class="headerlink" href="#36" title="Permanent link">&para;</a></h3>
+<h3 id="36">3.6 学习要点</h3>
 <ol>
 <li><strong>连接池管理</strong>: 使用连接池避免频繁创建连接</li>
 <li><strong>过期时间</strong>: 合理设置键的过期时间，避免内存泄漏</li>
@@ -642,16 +726,16 @@ alembic<span class="w"> </span><span class="nb">history</span>
 <li><strong>监控</strong>: 监控连接池使用情况，及时发现问题</li>
 </ol>
 <hr />
-<h2 id="4-celery">4. Celery 异步任务处理<a class="headerlink" href="#4-celery" title="Permanent link">&para;</a></h2>
-<h3 id="41-celery">4.1 Celery 核心概念<a class="headerlink" href="#41-celery" title="Permanent link">&para;</a></h3>
+<h2 id="4-celery">4. Celery 异步任务处理</h2>
+<h3 id="41-celery">4.1 Celery 核心概念</h3>
 <p>Celery 是一个分布式任务队列，用于处理异步任务和定时任务。</p>
-<h4 id="_22">核心组件<a class="headerlink" href="#_22" title="Permanent link">&para;</a></h4>
+<h4 id="cjk-unified-ideograph-6838cjk-unified-ideograph-5fc3cjk-unified-ideograph-7ec4cjk-unified-ideograph-4ef6">核心组件</h4>
 <ul>
 <li><strong>Broker</strong>: 消息代理（项目中使用 Redis）</li>
 <li><strong>Worker</strong>: 工作进程，执行任务</li>
 <li><strong>Backend</strong>: 结果后端，存储任务结果（项目中使用 Redis）</li>
 </ul>
-<h3 id="42-celery">4.2 Celery 配置<a class="headerlink" href="#42-celery" title="Permanent link">&para;</a></h3>
+<h3 id="42-celery">4.2 Celery 配置</h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/core/celery_app.py</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">celery</span><span class="w"> </span><span class="kn">import</span> <span class="n">Celery</span>
 
@@ -676,7 +760,7 @@ alembic<span class="w"> </span><span class="nb">history</span>
 <span class="p">)</span>
 </code></pre></div>
 
-<h3 id="43">4.3 任务定义<a class="headerlink" href="#43" title="Permanent link">&para;</a></h3>
+<h3 id="43">4.3 任务定义</h3>
 <p>使用装饰器定义 Celery 任务。</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># 简单任务</span>
 <span class="nd">@celery_app</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;health_check_task&quot;</span><span class="p">)</span>
@@ -724,8 +808,8 @@ alembic<span class="w"> </span><span class="nb">history</span>
         <span class="k">raise</span>
 </code></pre></div>
 
-<h3 id="44">4.4 任务提交和查询<a class="headerlink" href="#44" title="Permanent link">&para;</a></h3>
-<h4 id="_23">提交任务<a class="headerlink" href="#_23" title="Permanent link">&para;</a></h4>
+<h3 id="44">4.4 任务提交和查询</h3>
+<h4 id="cjk-unified-ideograph-63d0cjk-unified-ideograph-4ea4cjk-unified-ideograph-4efbcjk-unified-ideograph-52a1">提交任务</h4>
 <div class="highlight"><pre><span></span><code><span class="c1"># 在 API 端点中提交任务</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">app.core.celery_app</span><span class="w"> </span><span class="kn">import</span> <span class="n">celery_app</span>
 
@@ -738,7 +822,7 @@ alembic<span class="w"> </span><span class="nb">history</span>
 <span class="n">task_id</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">id</span>
 </code></pre></div>
 
-<h4 id="_24">查询任务状态<a class="headerlink" href="#_24" title="Permanent link">&para;</a></h4>
+<h4 id="cjk-unified-ideograph-67e5cjk-unified-ideograph-8be2cjk-unified-ideograph-4efbcjk-unified-ideograph-52a1cjk-unified-ideograph-72b6cjk-unified-ideograph-6001">查询任务状态</h4>
 <div class="highlight"><pre><span></span><code><span class="c1"># 查询任务状态</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">celery.result</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncResult</span>
 
@@ -755,7 +839,7 @@ alembic<span class="w"> </span><span class="nb">history</span>
     <span class="n">meta</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">info</span>
 </code></pre></div>
 
-<h3 id="45">4.5 任务状态管理<a class="headerlink" href="#45" title="Permanent link">&para;</a></h3>
+<h3 id="45">4.5 任务状态管理</h3>
 <p>项目在数据库中存储任务状态，与 Celery 状态同步。</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/models/task.py</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TaskStatus</span><span class="p">:</span>
@@ -776,7 +860,7 @@ alembic<span class="w"> </span><span class="nb">history</span>
     <span class="n">error_message</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">)</span>
 </code></pre></div>
 
-<h3 id="46-worker">4.6 Worker 启动<a class="headerlink" href="#46-worker" title="Permanent link">&para;</a></h3>
+<h3 id="46-worker">4.6 Worker 启动</h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># celery_worker.py</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">app.core.celery_app</span><span class="w"> </span><span class="kn">import</span> <span class="n">celery_app</span>
 
@@ -794,7 +878,7 @@ alembic<span class="w"> </span><span class="nb">history</span>
 celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span class="w"> </span>worker<span class="w"> </span>--loglevel<span class="o">=</span>info
 </code></pre></div>
 
-<h3 id="47">4.7 任务取消<a class="headerlink" href="#47" title="Permanent link">&para;</a></h3>
+<h3 id="47">4.7 任务取消</h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># 取消任务</span>
 <span class="n">celery_app</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">revoke</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">terminate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -804,7 +888,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
 <span class="p">)</span>
 </code></pre></div>
 
-<h3 id="48">4.8 学习要点<a class="headerlink" href="#48" title="Permanent link">&para;</a></h3>
+<h3 id="48">4.8 学习要点</h3>
 <ol>
 <li><strong>任务设计</strong>: 任务应该是幂等的，支持重试</li>
 <li><strong>状态更新</strong>: 及时更新任务状态，方便用户查询进度</li>
@@ -813,15 +897,15 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
 <li><strong>监控</strong>: 监控任务执行情况，及时发现问题</li>
 </ol>
 <hr />
-<h2 id="5-jwt">5. JWT 认证与安全机制<a class="headerlink" href="#5-jwt" title="Permanent link">&para;</a></h2>
-<h3 id="51-jwt">5.1 JWT 基础<a class="headerlink" href="#51-jwt" title="Permanent link">&para;</a></h3>
+<h2 id="5-jwt">5. JWT 认证与安全机制</h2>
+<h3 id="51-jwt">5.1 JWT 基础</h3>
 <p>JWT (JSON Web Token) 是一种开放标准（RFC 7519），用于安全地传输信息。</p>
-<h4 id="jwt">JWT 结构<a class="headerlink" href="#jwt" title="Permanent link">&para;</a></h4>
+<h4 id="jwt">JWT 结构</h4>
 <p>JWT 由三部分组成：<br />
 - <strong>Header</strong>: 算法和令牌类型<br />
 - <strong>Payload</strong>: 数据（用户信息、过期时间等）<br />
 - <strong>Signature</strong>: 签名，用于验证令牌</p>
-<h4 id="jwt_1">项目中的 JWT 配置<a class="headerlink" href="#jwt_1" title="Permanent link">&para;</a></h4>
+<h4 id="jwt_1">项目中的 JWT 配置</h4>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/core/config.py</span>
 <span class="n">SECRET_KEY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SECRET_KEY&quot;</span><span class="p">)</span>
 <span class="n">ALGORITHM</span> <span class="o">=</span> <span class="s2">&quot;HS256&quot;</span>
@@ -829,7 +913,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
 <span class="n">REFRESH_TOKEN_EXPIRE_DAYS</span> <span class="o">=</span> <span class="mi">7</span>
 </code></pre></div>
 
-<h3 id="52">5.2 令牌生成<a class="headerlink" href="#52" title="Permanent link">&para;</a></h3>
+<h3 id="52">5.2 令牌生成</h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/core/security.py</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">jwt</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timezone</span>
@@ -871,7 +955,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
     <span class="k">return</span> <span class="n">jwt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">to_encode</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">secret_key</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">algorithm</span><span class="p">)</span>
 </code></pre></div>
 
-<h3 id="53">5.3 令牌验证<a class="headerlink" href="#53" title="Permanent link">&para;</a></h3>
+<h3 id="53">5.3 令牌验证</h3>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">verify_token</span><span class="p">(</span><span class="n">token</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TokenData</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;验证令牌&quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
@@ -904,7 +988,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
         <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;无效的令牌&quot;</span><span class="p">)</span>
 </code></pre></div>
 
-<h3 id="54">5.4 令牌黑名单机制<a class="headerlink" href="#54" title="Permanent link">&para;</a></h3>
+<h3 id="54">5.4 令牌黑名单机制</h3>
 <p>项目实现了令牌黑名单，用于登出时撤销令牌。</p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_token_to_blacklist</span><span class="p">(</span><span class="n">token</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">expires_in</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1800</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;将令牌添加到黑名单&quot;&quot;&quot;</span>
@@ -916,7 +1000,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
     <span class="k">return</span> <span class="n">redis_client</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;blacklist:</span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
 </code></pre></div>
 
-<h3 id="55">5.5 用户认证依赖<a class="headerlink" href="#55" title="Permanent link">&para;</a></h3>
+<h3 id="55">5.5 用户认证依赖</h3>
 <p>使用 FastAPI 的依赖注入实现认证。</p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_current_user</span><span class="p">(</span>
     <span class="n">credentials</span><span class="p">:</span> <span class="n">HTTPAuthorizationCredentials</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">security</span><span class="p">),</span>
@@ -945,7 +1029,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
     <span class="k">return</span> <span class="n">current_user</span>
 </code></pre></div>
 
-<h3 id="56">5.6 密码加密<a class="headerlink" href="#56" title="Permanent link">&para;</a></h3>
+<h3 id="56">5.6 密码加密</h3>
 <p>使用 bcrypt 进行密码哈希。</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">passlib.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">CryptContext</span>
 
@@ -960,7 +1044,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
     <span class="k">return</span> <span class="n">pwd_context</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">plain_password</span><span class="p">,</span> <span class="n">hashed_password</span><span class="p">)</span>
 </code></pre></div>
 
-<h3 id="57">5.7 登录流程<a class="headerlink" href="#57" title="Permanent link">&para;</a></h3>
+<h3 id="57">5.7 登录流程</h3>
 <div class="highlight"><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/login&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">login</span><span class="p">(</span>
     <span class="n">user_data</span><span class="p">:</span> <span class="n">UserLogin</span><span class="p">,</span>
@@ -977,7 +1061,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
     <span class="k">return</span> <span class="n">tokens</span>
 </code></pre></div>
 
-<h3 id="58">5.8 刷新令牌流程<a class="headerlink" href="#58" title="Permanent link">&para;</a></h3>
+<h3 id="58">5.8 刷新令牌流程</h3>
 <div class="highlight"><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/refresh&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">refresh_token</span><span class="p">(</span>
     <span class="n">token_data</span><span class="p">:</span> <span class="n">TokenRefresh</span><span class="p">,</span>
@@ -1003,7 +1087,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
     <span class="k">return</span> <span class="n">new_tokens</span>
 </code></pre></div>
 
-<h3 id="59">5.9 登出流程<a class="headerlink" href="#59" title="Permanent link">&para;</a></h3>
+<h3 id="59">5.9 登出流程</h3>
 <div class="highlight"><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/logout&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">logout</span><span class="p">(</span>
     <span class="n">current_user</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">),</span>
@@ -1020,7 +1104,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
     <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;登出成功&quot;</span><span class="p">}</span>
 </code></pre></div>
 
-<h3 id="510">5.10 学习要点<a class="headerlink" href="#510" title="Permanent link">&para;</a></h3>
+<h3 id="510">5.10 学习要点</h3>
 <ol>
 <li><strong>密钥管理</strong>: 使用强密钥，不要在代码中硬编码</li>
 <li><strong>令牌过期</strong>: 设置合理的过期时间，平衡安全性和用户体验</li>
@@ -1029,8 +1113,8 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
 <li><strong>HTTPS</strong>: 生产环境必须使用 HTTPS 传输令牌</li>
 </ol>
 <hr />
-<h2 id="6">6. 项目架构设计模式<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
-<h3 id="61">6.1 分层架构<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
+<h2 id="6">6. 项目架构设计模式</h2>
+<h3 id="61">6.1 分层架构</h3>
 <p>项目采用清晰的分层架构：</p>
 <div class="highlight"><pre><span></span><code>┌─────────────────────────────────┐
 │   API 层 (endpoints/)           │  ← 处理 HTTP 请求/响应
@@ -1041,7 +1125,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
 └─────────────────────────────────┘
 </code></pre></div>
 
-<h3 id="62-api-endpoints">6.2 API 层（endpoints/）<a class="headerlink" href="#62-api-endpoints" title="Permanent link">&para;</a></h3>
+<h3 id="62-api-endpoints">6.2 API 层（endpoints/）</h3>
 <p>负责处理 HTTP 请求，调用服务层。</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/api/v1/endpoints/users.py</span>
 <span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/me&quot;</span><span class="p">)</span>
@@ -1055,7 +1139,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
     <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="63-services">6.3 服务层（services/）<a class="headerlink" href="#63-services" title="Permanent link">&para;</a></h3>
+<h3 id="63-services">6.3 服务层（services/）</h3>
 <p>包含业务逻辑，可被多个端点复用。</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/services/user_service.py</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">UserService</span><span class="p">:</span>
@@ -1072,7 +1156,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
         <span class="k">return</span> <span class="n">user</span>
 </code></pre></div>
 
-<h3 id="64-models">6.4 数据模型层（models/）<a class="headerlink" href="#64-models" title="Permanent link">&para;</a></h3>
+<h3 id="64-models">6.4 数据模型层（models/）</h3>
 <p>定义数据库表结构。</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/models/user.py</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">User</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
@@ -1080,7 +1164,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
     <span class="c1"># ... 字段定义</span>
 </code></pre></div>
 
-<h3 id="65-schemas">6.5 数据验证层（schemas/）<a class="headerlink" href="#65-schemas" title="Permanent link">&para;</a></h3>
+<h3 id="65-schemas">6.5 数据验证层（schemas/）</h3>
 <p>使用 Pydantic 定义请求/响应数据结构。</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/schemas/user.py</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">UserRegister</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
@@ -1089,7 +1173,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
     <span class="n">password</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div>
 
-<h3 id="66">6.6 依赖注入模式<a class="headerlink" href="#66" title="Permanent link">&para;</a></h3>
+<h3 id="66">6.6 依赖注入模式</h3>
 <p>大量使用依赖注入，提高代码可测试性。</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># 数据库依赖</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_database</span><span class="p">():</span>
@@ -1107,7 +1191,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
     <span class="c1"># ...</span>
 </code></pre></div>
 
-<h3 id="67">6.7 配置管理<a class="headerlink" href="#67" title="Permanent link">&para;</a></h3>
+<h3 id="67">6.7 配置管理</h3>
 <p>集中管理配置，从环境变量读取。</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/core/config.py</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Settings</span><span class="p">:</span>
@@ -1118,7 +1202,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
 <span class="n">settings</span> <span class="o">=</span> <span class="n">Settings</span><span class="p">()</span>
 </code></pre></div>
 
-<h3 id="68">6.8 错误处理<a class="headerlink" href="#68" title="Permanent link">&para;</a></h3>
+<h3 id="68">6.8 错误处理</h3>
 <p>统一的错误处理机制。</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPException</span><span class="p">,</span> <span class="n">status</span>
 
@@ -1131,7 +1215,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
     <span class="p">)</span>
 </code></pre></div>
 
-<h3 id="69">6.9 日志系统<a class="headerlink" href="#69" title="Permanent link">&para;</a></h3>
+<h3 id="69">6.9 日志系统</h3>
 <p>使用 loguru 进行日志记录。</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
 
@@ -1140,7 +1224,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;调试信息: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </code></pre></div>
 
-<h3 id="610">6.10 学习要点<a class="headerlink" href="#610" title="Permanent link">&para;</a></h3>
+<h3 id="610">6.10 学习要点</h3>
 <ol>
 <li><strong>单一职责</strong>: 每个模块只负责一个功能</li>
 <li><strong>依赖注入</strong>: 使用依赖注入提高可测试性</li>
@@ -1149,8 +1233,8 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
 <li><strong>错误处理</strong>: 统一错误处理，提供友好错误信息</li>
 </ol>
 <hr />
-<h2 id="7">7. 云服务集成<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
-<h3 id="71">7.1 阿里云短信服务<a class="headerlink" href="#71" title="Permanent link">&para;</a></h3>
+<h2 id="7">7. 云服务集成</h2>
+<h3 id="71">7.1 阿里云短信服务</h3>
 <p>用于发送短信验证码。</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/core/sms.py</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">alibabacloud_dysmsapi20170525.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span> <span class="k">as</span> <span class="n">DysmsapiClient</span>
@@ -1183,7 +1267,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
     <span class="k">return</span> <span class="kc">True</span>
 </code></pre></div>
 
-<h3 id="72">7.2 阿里云邮件服务<a class="headerlink" href="#72" title="Permanent link">&para;</a></h3>
+<h3 id="72">7.2 阿里云邮件服务</h3>
 <p>用于发送验证邮件。</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/core/alimail.py</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">alibabacloud_dm20151123.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span> <span class="k">as</span> <span class="n">DmClient</span>
@@ -1208,7 +1292,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
     <span class="n">client</span><span class="o">.</span><span class="n">single_send_mail_with_options</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">runtime</span><span class="p">)</span>
 </code></pre></div>
 
-<h3 id="73">7.3 腾讯云验证码<a class="headerlink" href="#73" title="Permanent link">&para;</a></h3>
+<h3 id="73">7.3 腾讯云验证码</h3>
 <p>用于验证用户提交的验证码。</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># app/core/tencent_captcha.py</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tencentcloud.common.credential</span><span class="w"> </span><span class="kn">import</span> <span class="n">Credential</span>
@@ -1235,7 +1319,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
     <span class="k">return</span> <span class="n">resp</span><span class="o">.</span><span class="n">CaptchaCode</span> <span class="o">==</span> <span class="mi">1</span>
 </code></pre></div>
 
-<h3 id="74">7.4 学习要点<a class="headerlink" href="#74" title="Permanent link">&para;</a></h3>
+<h3 id="74">7.4 学习要点</h3>
 <ol>
 <li><strong>密钥管理</strong>: 使用环境变量存储密钥，不要硬编码</li>
 <li><strong>错误处理</strong>: 处理服务调用失败的情况</li>
@@ -1244,8 +1328,8 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
 <li><strong>降级策略</strong>: 服务不可用时提供降级方案</li>
 </ol>
 <hr />
-<h2 id="8">8. 测试与部署<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
-<h3 id="81">8.1 测试框架<a class="headerlink" href="#81" title="Permanent link">&para;</a></h3>
+<h2 id="8">8. 测试与部署</h2>
+<h3 id="81">8.1 测试框架</h3>
 <p>使用 pytest 进行测试。</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># tests/conftest.py</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
@@ -1266,7 +1350,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
         <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </code></pre></div>
 
-<h3 id="82">8.2 单元测试示例<a class="headerlink" href="#82" title="Permanent link">&para;</a></h3>
+<h3 id="82">8.2 单元测试示例</h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># tests/api/v1/endpoints/test_auth.py</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_register_user</span><span class="p">(</span><span class="n">client</span><span class="p">):</span>
     <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
@@ -1282,7 +1366,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
     <span class="k">assert</span> <span class="s2">&quot;access_token&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 </code></pre></div>
 
-<h3 id="83-docker">8.3 Docker 部署<a class="headerlink" href="#83-docker" title="Permanent link">&para;</a></h3>
+<h3 id="83-docker">8.3 Docker 部署</h3>
 <div class="highlight"><pre><span></span><code><span class="c"># Dockerfile</span>
 <span class="k">FROM</span><span class="w"> </span><span class="s">python:3.11-slim</span>
 
@@ -1302,7 +1386,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
 <span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;uvicorn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;main:app&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;0.0.0.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--port&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;8000&quot;</span><span class="p">]</span>
 </code></pre></div>
 
-<h3 id="84">8.4 环境配置<a class="headerlink" href="#84" title="Permanent link">&para;</a></h3>
+<h3 id="84">8.4 环境配置</h3>
 <p>使用环境变量管理配置。</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># .env 文件</span>
 <span class="nv">DATABASE_URL</span><span class="o">=</span>postgresql://user:pass@localhost/db
@@ -1310,7 +1394,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
 <span class="nv">REDIS_URL</span><span class="o">=</span>redis://localhost:6379/0
 </code></pre></div>
 
-<h3 id="85">8.5 部署流程<a class="headerlink" href="#85" title="Permanent link">&para;</a></h3>
+<h3 id="85">8.5 部署流程</h3>
 <ol>
 <li>
 <p><strong>构建镜像</strong><br />
@@ -1331,7 +1415,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
    docker exec -it container_name alembic upgrade head</code></p>
 </li>
 </ol>
-<h3 id="86">8.6 学习要点<a class="headerlink" href="#86" title="Permanent link">&para;</a></h3>
+<h3 id="86">8.6 学习要点</h3>
 <ol>
 <li><strong>测试覆盖</strong>: 编写充分的测试，覆盖主要功能</li>
 <li><strong>CI/CD</strong>: 配置自动化测试和部署流程</li>
@@ -1340,15 +1424,15 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
 <li><strong>备份</strong>: 定期备份数据库和重要数据</li>
 </ol>
 <hr />
-<h2 id="9">9. 最佳实践总结<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
-<h3 id="91">9.1 代码组织<a class="headerlink" href="#91" title="Permanent link">&para;</a></h3>
+<h2 id="9">9. 最佳实践总结</h2>
+<h3 id="91">9.1 代码组织</h3>
 <ul>
 <li>✅ 使用清晰的分层架构</li>
 <li>✅ 保持模块职责单一</li>
 <li>✅ 使用类型提示提高代码可读性</li>
 <li>✅ 编写清晰的文档字符串</li>
 </ul>
-<h3 id="92">9.2 安全实践<a class="headerlink" href="#92" title="Permanent link">&para;</a></h3>
+<h3 id="92">9.2 安全实践</h3>
 <ul>
 <li>✅ 使用 HTTPS 传输敏感数据</li>
 <li>✅ 密码使用 bcrypt 加密</li>
@@ -1356,21 +1440,21 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
 <li>✅ 验证所有用户输入</li>
 <li>✅ 设置合理的令牌过期时间</li>
 </ul>
-<h3 id="93">9.3 性能优化<a class="headerlink" href="#93" title="Permanent link">&para;</a></h3>
+<h3 id="93">9.3 性能优化</h3>
 <ul>
 <li>✅ 使用数据库连接池</li>
 <li>✅ 使用 Redis 缓存热点数据</li>
 <li>✅ 异步处理耗时任务</li>
 <li>✅ 合理使用数据库索引</li>
 </ul>
-<h3 id="94">9.4 错误处理<a class="headerlink" href="#94" title="Permanent link">&para;</a></h3>
+<h3 id="94">9.4 错误处理</h3>
 <ul>
 <li>✅ 统一错误处理机制</li>
 <li>✅ 记录详细的错误日志</li>
 <li>✅ 返回友好的错误信息</li>
 <li>✅ 实现故障降级策略</li>
 </ul>
-<h3 id="95">9.5 可维护性<a class="headerlink" href="#95" title="Permanent link">&para;</a></h3>
+<h3 id="95">9.5 可维护性</h3>
 <ul>
 <li>✅ 使用配置文件管理设置</li>
 <li>✅ 使用依赖注入提高可测试性</li>
@@ -1378,8 +1462,8 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
 <li>✅ 遵循代码规范（flake8）</li>
 </ul>
 <hr />
-<h2 id="_25">📖 学习资源推荐<a class="headerlink" href="#_25" title="Permanent link">&para;</a></h2>
-<h3 id="_26">官方文档<a class="headerlink" href="#_26" title="Permanent link">&para;</a></h3>
+<h2 id="open-bookcjk-unified-ideograph-5b66cjk-unified-ideograph-4e60cjk-unified-ideograph-8d44cjk-unified-ideograph-6e90cjk-unified-ideograph-63a8cjk-unified-ideograph-8350">📖 学习资源推荐</h2>
+<h3 id="cjk-unified-ideograph-5b98cjk-unified-ideograph-65b9cjk-unified-ideograph-6587cjk-unified-ideograph-6863">官方文档</h3>
 <ul>
 <li><a href="https://fastapi.tiangolo.com/">FastAPI 文档</a></li>
 <li><a href="https://docs.sqlalchemy.org/">SQLAlchemy 文档</a></li>
@@ -1387,7 +1471,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
 <li><a href="https://redis.io/documentation">Redis 文档</a></li>
 <li><a href="https://alembic.sqlalchemy.org/">Alembic 文档</a></li>
 </ul>
-<h3 id="_27">相关技术<a class="headerlink" href="#_27" title="Permanent link">&para;</a></h3>
+<h3 id="cjk-unified-ideograph-76f8cjk-unified-ideograph-5173cjk-unified-ideograph-6280cjk-unified-ideograph-672f">相关技术</h3>
 <ul>
 <li><a href="https://docs.pydantic.dev/">Pydantic 文档</a></li>
 <li><a href="https://jwt.io/">JWT 官方文档</a></li>
@@ -1395,17 +1479,17 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
 <li><a href="https://docs.pytest.org/">pytest 文档</a></li>
 </ul>
 <hr />
-<h2 id="_28">🔧 实践练习<a class="headerlink" href="#_28" title="Permanent link">&para;</a></h2>
-<h3 id="1-api">练习 1: 创建新的 API 端点<a class="headerlink" href="#1-api" title="Permanent link">&para;</a></h3>
+<h2 id="wrenchcjk-unified-ideograph-5b9ecjk-unified-ideograph-8df5cjk-unified-ideograph-7ec3cjk-unified-ideograph-4e60">🔧 实践练习</h2>
+<h3 id="1-api">练习 1: 创建新的 API 端点</h3>
 <p>创建一个新的端点，实现用户资料更新功能。</p>
-<h3 id="2">练习 2: 实现缓存机制<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
+<h3 id="2">练习 2: 实现缓存机制</h3>
 <p>为热点数据添加 Redis 缓存。</p>
-<h3 id="3-celery">练习 3: 添加新的 Celery 任务<a class="headerlink" href="#3-celery" title="Permanent link">&para;</a></h3>
+<h3 id="3-celery">练习 3: 添加新的 Celery 任务</h3>
 <p>创建一个新的异步任务，实现数据导出功能。</p>
-<h3 id="4">练习 4: 编写单元测试<a class="headerlink" href="#4" title="Permanent link">&para;</a></h3>
+<h3 id="4">练习 4: 编写单元测试</h3>
 <p>为关键功能编写单元测试。</p>
 <hr />
-<h2 id="_29">📝 总结<a class="headerlink" href="#_29" title="Permanent link">&para;</a></h2>
+<h2 id="memocjk-unified-ideograph-603bcjk-unified-ideograph-7ed3">📝 总结</h2>
 <p>这份学习笔记涵盖了 Data Station Web API 项目中使用的核心技术：</p>
 <ol>
 <li><strong>FastAPI</strong>: 现代化的异步 Web 框架</li>
@@ -1417,7 +1501,7 @@ celery<span class="w"> </span>-A<span class="w"> </span>app.core.celery_app<span
 </ol>
 <p>通过学习和实践这些技术，你将能够构建企业级的 Web API 应用。</p>
 <hr />
-<p><strong>最后更新</strong>: 2025年12月<br />
+<p><strong>最后更新</strong>: 2025年1月<br />
 <strong>作者</strong>: 基于 Data Station Web API 项目整理</p>
     </div>
 </body>

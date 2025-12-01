@@ -1,10 +1,84 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-将 Markdown 文件转换为 HTML
+将 Markdown 文件转换为 HTML，支持目录跳转
 """
+import re
 from markdown import markdown
 from markdown.extensions import codehilite, fenced_code, tables, toc
+from markdown.extensions.toc import slugify
+
+
+def slugify_chinese(text, separator='-'):
+    """处理中文标题的锚点生成"""
+    # 先使用默认的 slugify
+    slug = slugify(text, separator)
+    # 如果结果是空的（中文情况），使用 Unicode 编码
+    if not slug:
+        # 将中文转换为拼音或使用 Unicode 编码
+        import unicodedata
+        slug = ''.join(
+            unicodedata.name(char, char).lower().replace(' ', '-')
+            if ord(char) > 127 else char
+            for char in text
+        )
+        slug = re.sub(r'[^\w\-]', '', slug)
+    return slug
+
+
+def add_anchor_ids(html_content):
+    """为所有标题添加 id 属性"""
+    # 匹配所有标题标签
+    def add_id(match):
+        tag = match.group(1)  # h1, h2, h3, etc.
+        content = match.group(2)  # 标题内容
+        # 生成锚点 ID
+        anchor_id = slugify_chinese(content)
+        return f'<{tag} id="{anchor_id}">{content}</{tag}>'
+    
+    # 匹配 <h1>到<h6>标签
+    pattern = r'<h([1-6])>(.*?)</h[1-6]>'
+    html_content = re.sub(pattern, add_id, html_content)
+    return html_content
+
+
+def fix_toc_links(html_content):
+    """修复目录链接，确保指向正确的锚点"""
+    # 匹配目录中的链接
+    def fix_link(match):
+        link_text = match.group(1)
+        # 生成正确的锚点
+        anchor = slugify_chinese(link_text)
+        return f'<a href="#{anchor}">{link_text}</a>'
+    
+    # 匹配目录中的链接（在 <div class="toc"> 内的链接）
+    # 先找到目录区域
+    toc_pattern = r'(<div class="toc">.*?</div>)'
+    
+    def process_toc(match):
+        toc_content = match.group(1)
+        # 修复目录中的链接
+        link_pattern = r'<a href="[^"]*">(.*?)</a>'
+        toc_content = re.sub(link_pattern, fix_link, toc_content)
+        return toc_content
+    
+    html_content = re.sub(toc_pattern, process_toc, html_content, flags=re.DOTALL)
+    
+    # 也处理手动编写的目录链接（Markdown 格式的链接）
+    manual_link_pattern = r'<a href="(#.*?)">(.*?)</a>'
+    def fix_manual_link(match):
+        href = match.group(1)
+        text = match.group(2)
+        # 如果已经是 # 开头，重新生成锚点
+        if href.startswith('#'):
+            anchor = slugify_chinese(text)
+            return f'<a href="#{anchor}">{text}</a>'
+        return match.group(0)
+    
+    html_content = re.sub(manual_link_pattern, fix_manual_link, html_content)
+    
+    return html_content
+
 
 def convert_markdown_to_html(md_file: str, html_file: str):
     """将 Markdown 文件转换为 HTML"""
@@ -20,6 +94,13 @@ def convert_markdown_to_html(md_file: str, html_file: str):
         'nl2br',
     ]
     
+    # 自定义 slugify 函数处理中文
+    toc_config = {
+        'permalink': False,  # 不在标题旁显示链接图标
+        'slugify': slugify_chinese,
+        'toc_depth': 3,  # 目录深度
+    }
+    
     # 转换为 HTML
     html_body = markdown(
         md_content,
@@ -29,11 +110,15 @@ def convert_markdown_to_html(md_file: str, html_file: str):
                 'css_class': 'highlight',
                 'use_pygments': True,
             },
-            'toc': {
-                'permalink': True,
-            }
+            'toc': toc_config
         }
     )
+    
+    # 为所有标题添加 id
+    html_body = add_anchor_ids(html_body)
+    
+    # 修复目录链接
+    html_body = fix_toc_links(html_body)
     
     # 创建完整的 HTML 文档
     html_template = f"""<!DOCTYPE html>
@@ -47,6 +132,10 @@ def convert_markdown_to_html(md_file: str, html_file: str):
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }}
+        
+        html {{
+            scroll-behavior: smooth;
         }}
         
         body {{
@@ -71,6 +160,7 @@ def convert_markdown_to_html(md_file: str, html_file: str):
             border-bottom: 3px solid #3498db;
             padding-bottom: 10px;
             margin-bottom: 30px;
+            scroll-margin-top: 20px;
         }}
         
         h2 {{
@@ -79,18 +169,21 @@ def convert_markdown_to_html(md_file: str, html_file: str):
             margin-bottom: 20px;
             padding-bottom: 10px;
             border-bottom: 2px solid #ecf0f1;
+            scroll-margin-top: 20px;
         }}
         
         h3 {{
             color: #555;
             margin-top: 30px;
             margin-bottom: 15px;
+            scroll-margin-top: 20px;
         }}
         
         h4, h5, h6 {{
             color: #666;
             margin-top: 20px;
             margin-bottom: 10px;
+            scroll-margin-top: 20px;
         }}
         
         p {{
@@ -162,10 +255,16 @@ def convert_markdown_to_html(md_file: str, html_file: str):
         a {{
             color: #3498db;
             text-decoration: none;
+            transition: color 0.2s;
         }}
         
         a:hover {{
+            color: #2980b9;
             text-decoration: underline;
+        }}
+        
+        a:visited {{
+            color: #8e44ad;
         }}
         
         hr {{
@@ -176,9 +275,17 @@ def convert_markdown_to_html(md_file: str, html_file: str):
         
         .toc {{
             background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 5px;
-            margin-bottom: 30px;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            border-left: 4px solid #3498db;
+        }}
+        
+        .toc h2 {{
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: none;
         }}
         
         .toc ul {{
@@ -187,7 +294,41 @@ def convert_markdown_to_html(md_file: str, html_file: str):
         }}
         
         .toc li {{
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            line-height: 1.8;
+        }}
+        
+        .toc a {{
+            color: #2c3e50;
+            font-weight: 500;
+        }}
+        
+        .toc a:hover {{
+            color: #3498db;
+            text-decoration: underline;
+        }}
+        
+        .toc ul ul {{
+            margin-left: 20px;
+            margin-top: 5px;
+        }}
+        
+        .toc ul ul ul {{
+            margin-left: 20px;
+        }}
+        
+        /* 标题锚点样式 */
+        h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {{
+            position: relative;
+        }}
+        
+        h1[id]:hover::before, h2[id]:hover::before, h3[id]:hover::before,
+        h4[id]:hover::before, h5[id]:hover::before, h6[id]:hover::before {{
+            content: "🔗";
+            position: absolute;
+            left: -30px;
+            font-size: 0.8em;
+            opacity: 0.5;
         }}
         
         @media (max-width: 768px) {{
@@ -198,11 +339,39 @@ def convert_markdown_to_html(md_file: str, html_file: str):
             body {{
                 padding: 10px;
             }}
+            
+            .toc {{
+                padding: 15px;
+            }}
         }}
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script>hljs.highlightAll();</script>
+    <script>
+        hljs.highlightAll();
+        
+        // 平滑滚动增强
+        document.addEventListener('DOMContentLoaded', function() {{
+            // 为所有锚点链接添加平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {{
+                anchor.addEventListener('click', function (e) {{
+                    const href = this.getAttribute('href');
+                    if (href !== '#' && href.length > 1) {{
+                        const target = document.querySelector(href);
+                        if (target) {{
+                            e.preventDefault();
+                            const offset = 80; // 偏移量，避免被固定导航栏遮挡
+                            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                            window.scrollTo({{
+                                top: targetPosition,
+                                behavior: 'smooth'
+                            }});
+                        }}
+                    }}
+                }});
+            }});
+        }});
+    </script>
 </head>
 <body>
     <div class="container">
