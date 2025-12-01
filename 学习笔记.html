@@ -234,15 +234,42 @@
                 anchor.addEventListener('click', function (e) {
                     const href = this.getAttribute('href');
                     if (href !== '#' && href.length > 1) {
-                        const target = document.querySelector(href);
+                        e.preventDefault();
+                        
+                        // 尝试多种方式查找目标元素
+                        let target = document.querySelector(href);
+                        
+                        // 如果直接查询失败，尝试解码 URL
+                        if (!target) {
+                            try {
+                                const decodedHref = decodeURIComponent(href);
+                                target = document.querySelector(decodedHref);
+                            } catch (e) {
+                                console.warn('Failed to decode href:', href);
+                            }
+                        }
+                        
+                        // 如果还是找不到，尝试通过 id 属性查找
+                        if (!target) {
+                            const id = href.substring(1); // 移除 #
+                            target = document.getElementById(id);
+                        }
+                        
                         if (target) {
-                            e.preventDefault();
                             const offset = 80; // 偏移量，避免被固定导航栏遮挡
                             const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                            
                             window.scrollTo({
-                                top: targetPosition,
+                                top: Math.max(0, targetPosition),
                                 behavior: 'smooth'
                             });
+                            
+                            // 更新 URL（可选，保持浏览器历史记录）
+                            if (history.pushState) {
+                                history.pushState(null, null, href);
+                            }
+                        } else {
+                            console.warn('Target not found for href:', href);
                         }
                     }
                 });
@@ -260,15 +287,15 @@
 <h2 id="section-6d960e42">📚 目录</h2>
 <ol>
 <li><a href="#section-308af18e">项目概述</a></li>
-<li><a href="#fastapi">FastAPI 框架</a></li>
-<li><a href="#sqlalchemy-orm">SQLAlchemy ORM 与数据库设计</a></li>
-<li><a href="#redis">Redis 缓存与连接池管理</a></li>
-<li><a href="#celery">Celery 异步任务处理</a></li>
-<li><a href="#jwt">JWT 认证与安全机制</a></li>
-<li><a href="#section-d402c515">项目架构设计模式</a></li>
-<li><a href="#section-a5bb6af1">云服务集成</a></li>
-<li><a href="#section-e90f98ee">测试与部署</a></li>
-<li><a href="#section-79a7ac82">最佳实践总结</a></li>
+<li><a href="#1-fastapi">FastAPI 框架</a></li>
+<li><a href="#2-sqlalchemy-orm">SQLAlchemy ORM 与数据库设计</a></li>
+<li><a href="#3-redis">Redis 缓存与连接池管理</a></li>
+<li><a href="#4-celery">Celery 异步任务处理</a></li>
+<li><a href="#5-jwt">JWT 认证与安全机制</a></li>
+<li><a href="#section-d15c6431">项目架构设计模式</a></li>
+<li><a href="#section-998fc30d">云服务集成</a></li>
+<li><a href="#section-b33f2dd4">测试与部署</a></li>
+<li><a href="#section-ca0840e5">最佳实践总结</a></li>
 </ol>
 <hr />
 <h2 id="section-308af18e">项目概述</h2>

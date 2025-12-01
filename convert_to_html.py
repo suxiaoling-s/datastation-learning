@@ -45,37 +45,99 @@ def add_anchor_ids(html_content):
     return html_content
 
 
+def extract_heading_map(html_content):
+    """提取所有标题及其 id，建立映射关系"""
+    heading_map = {}
+    # 匹配所有标题标签及其 id
+    pattern = r'<h([1-6]) id="([^"]+)">(.*?)</h[1-6]>'
+    
+    for match in re.finditer(pattern, html_content):
+        level = match.group(1)
+        heading_id = match.group(2)
+        heading_text = match.group(3)
+        
+        # 清理标题文本（移除 HTML 标签和 emoji）
+        clean_text = re.sub(r'<[^>]+>', '', heading_text)  # 移除 HTML 标签
+        clean_text = re.sub(r'[📚🔧🌐📝📖]', '', clean_text).strip()  # 移除 emoji
+        clean_text = re.sub(r'^\d+\.\s*', '', clean_text)  # 移除开头的数字编号
+        
+        # 存储映射：文本 -> id
+        heading_map[clean_text] = heading_id
+        # 也存储原始文本的映射
+        heading_map[heading_text] = heading_id
+    
+    return heading_map
+
+
 def fix_toc_links(html_content):
     """修复目录链接，确保指向正确的锚点"""
-    # 匹配目录中的链接
-    def fix_link(match):
-        link_text = match.group(1)
-        # 生成正确的锚点
-        anchor = slugify_chinese(link_text)
-        return f'<a href="#{anchor}">{link_text}</a>'
+    # 先提取所有标题的映射
+    heading_map = extract_heading_map(html_content)
     
-    # 匹配目录中的链接（在 <div class="toc"> 内的链接）
-    # 先找到目录区域
-    toc_pattern = r'(<div class="toc">.*?</div>)'
+    # 修复目录中的链接
+    def fix_toc_link(match):
+        full_link = match.group(0)
+        link_text = match.group(1)
+        
+        # 清理链接文本
+        clean_text = re.sub(r'<[^>]+>', '', link_text)
+        clean_text = re.sub(r'[📚🔧🌐📝📖]', '', clean_text).strip()
+        clean_text = re.sub(r'^\d+\.\s*', '', clean_text)
+        
+        # 查找匹配的标题 id
+        heading_id = None
+        # 精确匹配
+        if clean_text in heading_map:
+            heading_id = heading_map[clean_text]
+        else:
+            # 模糊匹配：查找包含该文本的标题
+            for heading_text, h_id in heading_map.items():
+                if clean_text in heading_text or heading_text in clean_text:
+                    heading_id = h_id
+                    break
+        
+        # 如果找到了匹配的 id，使用它；否则使用生成的锚点
+        if heading_id:
+            return f'<a href="#{heading_id}">{link_text}</a>'
+        else:
+            # 回退：使用文本生成锚点
+            anchor = slugify_chinese(clean_text)
+            return f'<a href="#{anchor}">{link_text}</a>'
+    
+    # 匹配目录中的链接（在 <ol> 或 <ul> 内的链接，通常在目录区域）
+    # 先找到目录区域（通常在 <h2>目录</h2> 之后的 <ol>）
+    toc_pattern = r'(<h[1-6][^>]*>.*?目录.*?</h[1-6]>.*?<ol>.*?</ol>)'
     
     def process_toc(match):
         toc_content = match.group(1)
         # 修复目录中的链接
         link_pattern = r'<a href="[^"]*">(.*?)</a>'
-        toc_content = re.sub(link_pattern, fix_link, toc_content)
+        toc_content = re.sub(link_pattern, fix_toc_link, toc_content)
         return toc_content
     
     html_content = re.sub(toc_pattern, process_toc, html_content, flags=re.DOTALL)
     
-    # 也处理手动编写的目录链接（Markdown 格式的链接）
+    # 也处理其他手动编写的目录链接
     manual_link_pattern = r'<a href="(#.*?)">(.*?)</a>'
     def fix_manual_link(match):
         href = match.group(1)
         text = match.group(2)
-        # 如果已经是 # 开头，重新生成锚点
+        # 如果已经是 # 开头，尝试匹配标题
         if href.startswith('#'):
-            anchor = slugify_chinese(text)
-            return f'<a href="#{anchor}">{text}</a>'
+            clean_text = re.sub(r'<[^>]+>', '', text)
+            clean_text = re.sub(r'[📚🔧🌐📝📖]', '', clean_text).strip()
+            clean_text = re.sub(r'^\d+\.\s*', '', clean_text)
+            
+            if clean_text in heading_map:
+                return f'<a href="#{heading_map[clean_text]}">{text}</a>'
+            else:
+                # 模糊匹配
+                for heading_text, h_id in heading_map.items():
+                    if clean_text in heading_text or heading_text in clean_text:
+                        return f'<a href="#{h_id}">{text}</a>'
+                # 回退
+                anchor = slugify_chinese(clean_text)
+                return f'<a href="#{anchor}">{text}</a>'
         return match.group(0)
     
     html_content = re.sub(manual_link_pattern, fix_manual_link, html_content)
@@ -360,15 +422,42 @@ def convert_markdown_to_html(md_file: str, html_file: str):
                 anchor.addEventListener('click', function (e) {{
                     const href = this.getAttribute('href');
                     if (href !== '#' && href.length > 1) {{
-                        const target = document.querySelector(href);
+                        e.preventDefault();
+                        
+                        // 尝试多种方式查找目标元素
+                        let target = document.querySelector(href);
+                        
+                        // 如果直接查询失败，尝试解码 URL
+                        if (!target) {{
+                            try {{
+                                const decodedHref = decodeURIComponent(href);
+                                target = document.querySelector(decodedHref);
+                            }} catch (e) {{
+                                console.warn('Failed to decode href:', href);
+                            }}
+                        }}
+                        
+                        // 如果还是找不到，尝试通过 id 属性查找
+                        if (!target) {{
+                            const id = href.substring(1); // 移除 #
+                            target = document.getElementById(id);
+                        }}
+                        
                         if (target) {{
-                            e.preventDefault();
                             const offset = 80; // 偏移量，避免被固定导航栏遮挡
                             const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                            
                             window.scrollTo({{
-                                top: targetPosition,
+                                top: Math.max(0, targetPosition),
                                 behavior: 'smooth'
                             }});
+                            
+                            // 更新 URL（可选，保持浏览器历史记录）
+                            if (history.pushState) {{
+                                history.pushState(null, null, href);
+                            }}
+                        }} else {{
+                            console.warn('Target not found for href:', href);
                         }}
                     }}
                 }});
